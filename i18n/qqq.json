@@ -1,0 +1,17 @@
+{
+	"@metadata": {
+		"authors": [
+			"Cindy Cicalese",
+			"Jason Ji"
+		]
+	},
+	"vikijs-desc": "{{desc|name=VIKI|url=http://www.mediawiki.org/wiki/Extension/VIKI}}",
+	"vikijs-error-title" : "Title for the error div",
+	"vikijs-error-missing-pageTitle": "Error message when no pageTitles are supplied to the parser function",
+	"vikijs-timeout-content-namespace": "Error message for when a content namespace fetch has timed out",
+	"vikijs-error-content-namespace": "Error message for a failed content namespace fetch",
+	"vikijs-error-visit-node" : "Error message for a failure to visit a node",
+	"vikijs-error-external-links" : "Error message for a failure to fetch external links for a page",
+	"vikijs-error-intrawiki-out": "Error message for a failure to fetch intra-wiki links out for a page",
+	"vikijs-error-intrawiki-in": "Error message for a failure to fetch intra-wiki links in for a page"
+}
