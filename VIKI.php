@@ -31,7 +31,7 @@
 * refreshLinks.php after setting this flag.
 */
 
-define( 'VIKIJS_VERSION', '1.0' );
+define( 'VIKIJS_VERSION', '1.0.1' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
@@ -56,7 +56,7 @@ $wgExtensionCredits['parserhook'][] = array (
 	'version' => VIKIJS_VERSION,
 	'author' => array('[http://www.mediawiki.org/wiki/User:Jji Jason Ji]',
 						'[http://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]'),
-	'descriptionmsg' => 'vikijs-desc',
+	'descriptionmsg' => 'viki-desc',
 	'path' => __FILE__,
 	'url' => 'http://www.mediawiki.org/wiki/Extension:VIKI'
 );
@@ -85,14 +85,14 @@ $wgResourceModules['ext.VIKI'] = array(
 		'mediawiki.jqueryMsg',
 	),
 	'messages' => array(
-	'vikijs-error-title',
-	'vikijs-error-missing-pageTitle',
-	'vikijs-timeout-content-namespace',
-	'vikijs-error-content-namespace',
-	'vikijs-error-visit-node',
-	'vikijs-error-external-links',
-	'vikijs-error-intrawiki-out',
-	'vikijs-error-intrawiki-in'
+	'viki-error-title',
+	'viki-error-missing-pageTitle',
+	'viki-timeout-content-namespace',
+	'viki-error-content-namespace',
+	'viki-error-visit-node',
+	'viki-error-external-links',
+	'viki-error-intrawiki-out',
+	'viki-error-intrawiki-in'
 	)
 );
 
