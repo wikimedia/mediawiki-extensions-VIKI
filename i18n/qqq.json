@@ -6,12 +6,12 @@
 		]
 	},
 	"viki-desc": "{{desc|name=VIKI|url=http://www.mediawiki.org/wiki/Extension/VIKI}}",
-	"viki-error-title" : "Title for the error div",
+	"viki-error-title": "Title for the error div",
 	"viki-error-missing-pageTitle": "Error message when no pageTitles are supplied to the parser function",
 	"viki-timeout-content-namespace": "Error message for when a content namespace fetch has timed out",
 	"viki-error-content-namespace": "Error message for a failed content namespace fetch",
-	"viki-error-visit-node" : "Error message for a failure to visit a node",
-	"viki-error-external-links" : "Error message for a failure to fetch external links for a page",
+	"viki-error-visit-node": "Error message for a failure to visit a node",
+	"viki-error-external-links": "Error message for a failure to fetch external links for a page",
 	"viki-error-intrawiki-out": "Error message for a failure to fetch intra-wiki links out for a page",
 	"viki-error-intrawiki-in": "Error message for a failure to fetch intra-wiki links in for a page"
 }
