@@ -2,11 +2,12 @@
 	"@metadata": {
 		"authors": [
 			"Cindy Cicalese",
-			"Jason Ji"
+			"Jason Ji",
+			"Robby"
 		]
 	},
 	"viki-desc": "{{desc|name=VIKI|url=http://www.mediawiki.org/wiki/Extension/VIKI}}",
-	"viki-error-title": "Title for the error div",
+	"viki-error-title": "Title for the error div\n{{Identical|Error}}",
 	"viki-error-missing-pageTitle": "Error message when no pageTitles are supplied to the parser function",
 	"viki-timeout-content-namespace": "Error message for when a content namespace fetch has timed out",
 	"viki-error-content-namespace": "Error message for a failed content namespace fetch",
