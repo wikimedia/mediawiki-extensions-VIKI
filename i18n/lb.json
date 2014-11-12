@@ -4,5 +4,6 @@
 			"Robby"
 		]
 	},
-	"viki-error-title": "Feeler:"
+	"viki-error-title": "Feeler:",
+	"viki-error-missing-pageTitle": "Dir musst mindestens een Titel vun enger Säit uginn."
 }
