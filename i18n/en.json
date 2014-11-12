@@ -1,6 +1,9 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [
+			"Jason Ji", 
+			"Cindy Cicalese"
+		]
 	},
 	"viki-desc": "Draws a network graph of links between wiki pages or web pages",
 	"viki-error-title": "Error:",
