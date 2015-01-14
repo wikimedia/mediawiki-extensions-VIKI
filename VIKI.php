@@ -31,7 +31,7 @@
 * refreshLinks.php after setting this flag.
 */
 
-define( 'VIKIJS_VERSION', '1.0.2' );
+define( 'VIKIJS_VERSION', '1.0.3' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
@@ -109,23 +109,19 @@ function efVIKIParserFunction_Setup ( & $parser ) {
 	return true;
 }
 
-function viki( $parser, $pageTitles, $width, $height ) {
+function viki( Parser $parser ) {
 	$myparams = func_get_args();
 	array_shift( $myparams );
 
 	$paramDictionary = vikiJS_parseParameters( $myparams );
 
-	$pageTitles = $paramDictionary["pageTitles"];
-	$width = $paramDictionary["width"];
-	$height = $paramDictionary["height"];
+	$width = isset( $paramDictionary['width'] ) ? (int) $paramDictionary['width'] : 1200;
+	$height = isset( $paramDictionary['height'] ) ? (int) $paramDictionary['height'] : 600;
+	$delimiter = isset( $paramDictionary['delimiter'] ) ? $paramDictionary['delimiter'] : ',';
+	$pageTitles = isset( $paramDictionary['pageTitles'] ) ? explode( $delimiter,
+			$paramDictionary['pageTitles'] ) : array( $parser->getTitle()->getText() );
 
 	$vikiJS = new VikiJS;
-
-	if ( !$width )
-		$width = 1200;
-	if ( !$height )
-		$height = 600;
-
 	$output = $vikiJS->display( $parser, $pageTitles, $width, $height );
 	$parser->disableCache();
 	return array( $parser->insertStripItem( $output, $parser->mStripState ),
