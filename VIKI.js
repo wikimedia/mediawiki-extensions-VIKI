@@ -127,7 +127,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			this.initialPageTitles = jQuery.parseJSON( pageTitles );
 
 			if ( this.initialPageTitles === null ) {
-				self.showError( mw.message( 'vikijs-error-missing-pageTitle' )
+				self.showError( mw.message( 'viki-error-missing-pageTitle' )
 					.text() );
 				return;
 			}
@@ -215,7 +215,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 */
 		my.VikiJS.prototype.initializeErrorDiv = function() {
 			$( "#" + self.ErrorsDiv )
-				.append( "<p><strong>" + mw.message( 'vikijs-error-title' )
+				.append( "<p><strong>" + mw.message( 'viki-error-title' )
 					.text() + "</strong></p>" );
 		};
 
@@ -634,10 +634,10 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					if ( errorThrown === 'timeout' ) {
 						// do something about this error, but then increment contentNamespacesFetched so it can continue to work.
 						// default to just NS 0 (main).
-						self.showError( mw.message( 'vikijs-timeout-content-namespace', wikiTitle )
+						self.showError( mw.message( 'viki-timeout-content-namespace', wikiTitle )
 							.text() );
 					} else {
-						self.showError( mw.message( 'vikijs-error-content-namespace', wikiTitle )
+						self.showError( mw.message( 'viki-error-content-namespace', wikiTitle )
 							.text() );
 					}
 					actuallySearchableWikis[ index ].contentNamespaces = [ 0 ];
@@ -1296,7 +1296,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					wikiPageCheckSuccessHandler( data, textStatus, jqXHR, intraNode );
 				},
 				error: function() {
-					self.showError( mw.message( 'vikijs-error-visit-node', intraNode.pageTitle )
+					self.showError( mw.message( 'viki-error-visit-node', intraNode.pageTitle )
 						.text() );
 				}
 			} );
@@ -1702,7 +1702,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					externalLinksSuccessHandler( data, textStatus, jqXHR, node );
 				},
 				error: function() {
-					self.showError( mw.message( 'vikijs-error-external-links', node.pageTitle )
+					self.showError( mw.message( 'viki-error-external-links', node.pageTitle )
 						.text() );
 				}
 			} );
@@ -1723,7 +1723,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					intraWikiOutSuccessHandler( data, textStatus, jqXHR, node );
 				},
 				error: function() {
-					self.showError( mw.message( 'vikijs-error-intrawiki-out', node.pageTitle )
+					self.showError( mw.message( 'viki-error-intrawiki-out', node.pageTitle )
 						.text() );
 				}
 			} );
@@ -1743,7 +1743,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					intraWikiInSuccessHandler( data, textStatus, jqXHR, node );
 				},
 				error: function() {
-					self.showError( mw.message( 'vikijs-error-intrawiki-in', node.pageTitle )
+					self.showError( mw.message( 'viki-error-intrawiki-in', node.pageTitle )
 						.text() );
 				}
 			} );
@@ -1753,7 +1753,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			function externalLinksSuccessHandler( data, textStatus, jqXHR, originNode ) {
 
 				if ( data.error ) {
-					self.showError( mw.message( 'vikijs-error-external-links', node.pageTitle )
+					self.showError( mw.message( 'viki-error-external-links', node.pageTitle )
 						.text() );
 					return;
 				}
@@ -1835,7 +1835,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			function intraWikiOutSuccessHandler( data, textStatus, jqXHR, originNode ) {
 
 				if ( data.error ) {
-					self.showError( mw.message( 'vikijs-error-intrawiki-out', node.pageTitle )
+					self.showError( mw.message( 'viki-error-intrawiki-out', node.pageTitle )
 						.text() );
 					return;
 				}
@@ -1890,7 +1890,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			function intraWikiInSuccessHandler( data, textStatus, jqXHR, originNode ) {
 
 				if ( data.error ) {
-					self.showError( mw.message( 'vikijs-error-intrawiki-in', node.pageTitle )
+					self.showError( mw.message( 'viki-error-intrawiki-in', node.pageTitle )
 						.text() );
 					return;
 				}

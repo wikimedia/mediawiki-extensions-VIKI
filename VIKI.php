@@ -31,7 +31,7 @@
 * refreshLinks.php after setting this flag.
 */
 
-define( 'VIKIJS_VERSION', '1.0.3' );
+define( 'VIKIJS_VERSION', '1.0.4' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
