@@ -41,7 +41,7 @@ class VikiJS {
 	/**
 	 * Adds a VIKI plugin ResourceLoader resource module to be loaded.
 	 *
-	 * @param string $moduleName the name of the resource module to be loaded, 
+	 * @param string $moduleName the name of the resource module to be loaded,
 	 * e.g. "ext.VikiSemanticTitle"
 	 */
 
@@ -112,7 +112,7 @@ EOT;
 			$index++;
 		}
 
-		$pageTitles_json = addslashes( json_encode( array_map( 'trim', explode( ',', $pageTitles ) ) ) );
+		$pageTitles_json = addslashes( json_encode( array_map( 'trim', $pageTitles ) ) );
 		$modules_json = addslashes( json_encode( self::$modules ) );
 		$divs_json = addslashes( json_encode( array( $graphdiv, $subdetailsdiv,
 			$sliderdiv, $errorsdiv ) ) );
