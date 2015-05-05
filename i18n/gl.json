@@ -1,8 +1,13 @@
 {
 	"@metadata": {
 		"authors": [
-			"Banjo"
+			"Banjo",
+			"Elisardojm"
 		]
 	},
-	"viki-error-title": "Erro:"
+	"viki-desc": "Debuxa un gráfico de rede de ligazóns entre páxinas wiki ou páxinas web",
+	"viki-error-title": "Erro:",
+	"viki-error-missing-pageTitle": "Debe indicar polo menos un título de páxina.",
+	"viki-error-visit-node": "Erro ó intentar visitar o nodo: $1.",
+	"viki-error-external-links": "Erro ó buscar as ligazóns externas da páxina: $1."
 }
