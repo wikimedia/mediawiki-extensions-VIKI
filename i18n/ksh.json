@@ -6,7 +6,7 @@
 	},
 	"viki-desc": "Mohld en Beld vun de Lenks zwesche Sigge em Wikki udder ander Websigge.",
 	"viki-error-title": "Fähler:",
-	"viki-error-missing-pageTitle": "Do moß winneschsdens eine Tettel vun ener Sigg aanjävve.",
+	"viki-error-missing-pageTitle": "Do moß winneschsdens ein Övverschreff vun ener Sigg aanjävve.",
 	"viki-timeout-content-namespace": "Et hät zoh lang jedohrt, de Nahme vun de Appachtemangs för et Wikki ze holle: $1.\nJäz nämme mer et Schtanndat_Appachtemang.",
 	"viki-error-content-namespace": "Ene Fähler es opjetrodde, beim Versohch, de Ennhallds_Appachtemangs ze holle: $1.\nJäz nämme mer nur et Schtanndat_Appachtemang.",
 	"viki-error-visit-node": "Ene Fähler es opjetrodde beim Besöhke vun dä Sigg „$1“.",
