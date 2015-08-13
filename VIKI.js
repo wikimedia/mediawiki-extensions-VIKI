@@ -672,11 +672,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				var node = self.createWikiNodeFromWiki( self.initialPageTitles[ i ], self.THIS_WIKI );
 				self.addNode( node );
 				self.visitNode( node, function(isHidden, thisNode) {
-					if( !isHidden ) {
-						self.elaborateWikiNode( thisNode );
+					if( isHidden ) {
+						self.elaborateWikiNode( thisNode, function( thisNode ) { 
+							self.hideNodeAndRedraw( thisNode ); 
+						} );
 					}
 					else {
-						self.hideNodeAndRedraw( thisNode );
+						self.elaborateWikiNode( thisNode, null );
 					}
 				} );
 			}
@@ -1289,7 +1291,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					if(shouldHide) {
 						nodesToHide.push(node);
 					}
-					if(nodesVisited == totalVisitCount) {
+					if(nodesVisited === totalVisitCount) {
 						nodesToHide.forEach(function(node) {
 							self.hideNode(node);
 						});
@@ -1715,7 +1717,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			var self = this;
 			var node = self.Nodes[ index ];
 			if ( node.type === self.WIKI_PAGE_TYPE )
-				self.elaborateWikiNode( node );
+				self.elaborateWikiNode( node, null );
 		};
 
 		/**
@@ -1728,10 +1730,14 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 *
 		 * @param {Object} node node to elaborate
 		 */
-		my.VikiJS.prototype.elaborateWikiNode = function( node ) {
+		my.VikiJS.prototype.elaborateWikiNode = function( node, completionHandler ) {
 			var self = this;
 
 			// 1. Get external links OUT from page.
+
+			var externalElaborationComplete = false;
+			var intraOutElaborationComplete = false;
+			var intraInElaborationComplete = false;
 
 			jQuery.ajax( {
 				url: node.apiURL,
@@ -1746,6 +1752,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				},
 				success: function( data, textStatus, jqXHR ) {
 					externalLinksSuccessHandler( data, textStatus, jqXHR, node );
+					externalElaborationComplete = true;
+					checkElaborationComplete(node, completionHandler);
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-external-links', node.pageTitle )
@@ -1767,6 +1775,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				},
 				success: function( data, textStatus, jqXHR ) {
 					intraWikiOutSuccessHandler( data, textStatus, jqXHR, node );
+					intraOutElaborationComplete = true;
+					checkElaborationComplete(node, completionHandler);
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-intrawiki-out', node.pageTitle )
@@ -1787,6 +1797,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				},
 				success: function( data, textStatus, jqXHR ) {
 					intraWikiInSuccessHandler( data, textStatus, jqXHR, node );
+					intraInElaborationComplete = true;
+					checkElaborationComplete(node, completionHandler);
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-intrawiki-in', node.pageTitle )
@@ -2001,6 +2013,16 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 				}
 				self.redraw( true );
+			}
+
+			function checkElaborationComplete( originNode, completionHandler ) {
+				if( externalElaborationComplete && intraOutElaborationComplete && intraInElaborationComplete ) {
+					self.log("Elaboration complete for " + originNode.displayName);
+					if( completionHandler ) {
+						completionHandler( originNode );
+					}
+					self.callHooks( "NodeElaborationCompleteHook", [ originNode ] );
+				}
 			}
 		};
 
@@ -2255,7 +2277,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			for(var i = 0; i < self.HiddenCategories.length; i++) {
 				var STOP = false;
 				for(var j = 0; j < node.categories.length; j++) {
-					if(self.HiddenCategories[i] == node.categories[j]) {
+					if(self.HiddenCategories[i] === node.categories[j]) {
 						return true;
 					}
 				}
