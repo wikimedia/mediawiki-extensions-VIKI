@@ -87,6 +87,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		this.serverURL = mw.config.get( "wgServer" );
 		this.myApiURL = this.serverURL + mw.config.get( "wgScriptPath" ) + "/api.php";
 		this.allWikis = [];
+		this.HiddenCategories = [];
 
 		var self = this;
 
@@ -1265,6 +1266,33 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				.html( info );
 		};
 
+
+		my.VikiJS.prototype.visitNodeBatch = function( nodesToVisit ) {
+			var thisContext = this;
+			var nodesVisited = 0;
+			var nodesToHide = [];
+			var totalVisitCount = nodesToVisit.length;
+			self.log("Total nodes to visit: "+totalVisitCount);
+			nodesToVisit.forEach(function(node) {
+				self.visitNode(node, function(shouldHide) { 
+					nodesVisited++; 
+					self.log("Nodes visited: "+nodesVisited);
+					if(shouldHide) {
+						self.log("This node should be hidden");
+						nodesToHide.push(node);
+					}
+					else
+						self.log("This node should not be hidden");
+					if(nodesVisited == totalVisitCount) {
+						self.log("All nodes visited");
+						nodesToHide.forEach(function(node) {
+							self.hideNode(node);
+						});
+						self.redraw(true);
+					}
+				});
+			});
+		}
 		/**
 		 * Make an API call to get information about this node.
 		 *
@@ -1273,14 +1301,17 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 *
 		 * @param {Object} intraNode The node being visited.
 		 */
-		my.VikiJS.prototype.visitNode = function( intraNode ) {
+		my.VikiJS.prototype.visitNode = function( intraNode, callback ) {
 			var self = this;
 			// note: beyond modularity, this is a separate function to preserve the scope of intraNode for the ajax call.
 
 			self.callHooks( "BeforeVisitNodeHook", [ intraNode ] );
 
-			if ( intraNode.visited )
+			if ( intraNode.visited ) {
+				if( callback )
+					callback( false );
 				return;
+			}
 
 			jQuery.ajax( {
 				url: intraNode.apiURL,
@@ -1293,11 +1324,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					redirects: 'true'
 				},
 				success: function( data, textStatus, jqXHR ) {
-					wikiPageCheckSuccessHandler( data, textStatus, jqXHR, intraNode );
+					wikiPageCheckSuccessHandler( data, textStatus, jqXHR, intraNode, callback );
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-visit-node', intraNode.pageTitle )
 						.text() );
+					if( callback )
+						callback( false );
 				}
 			} );
 			intraNode.visited = true;
@@ -1308,6 +1341,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					// check if the page is nonexistent
 					originNode.nonexistentPage = true;
 					self.redrawNode( originNode );
+					if(callback)
+						callback( false );
 				} else {
 					// if originNode doesn't already have a categories array, make one
 					if ( !originNode.categories )
@@ -1324,6 +1359,9 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							originNode.categories.push( categoryTitle );
 						}
 					}
+
+					if(callback)
+						callback(self.nodeHasHiddenCategory(originNode));
 				}
 
 				self.callHooks( "AfterVisitNodeHook", [ originNode ] );
@@ -1761,6 +1799,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				var externalLinks = data.query.pages[ Object.keys( data.query.pages )[ 0 ] ].extlinks;
 				if ( externalLinks ) {
 					var newExternalNodes = [];
+					var nodesToVisit = [];
 					// some of these external links are actually links to other searchable wikis.
 					// these should be recognized as wiki nodes, not just external nodes.
 
@@ -1802,7 +1841,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								link.bidirectional = true;
 							}
 
-							self.visitNode( externalWikiNode );
+							nodesToVisit.push( externalWikiNode );
 						} else {
 							externalNode = self.findNode( "URL", thisURL );
 							if ( !externalNode ) {
@@ -1826,6 +1865,9 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						if ( externalNode )
 							newExternalNodes.push( externalNode );
 					}
+
+					self.visitNodeBatch( nodesToVisit );
+
 					// now call hooks on these nodes to see if any other special way to handle it (e.g. MII Phonebook)
 					self.callHooks( "ExternalNodeHook", [ newExternalNodes ] );
 				}
@@ -1833,6 +1875,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			}
 
 			function intraWikiOutSuccessHandler( data, textStatus, jqXHR, originNode ) {
+				var thisContext = this;
 
 				if ( data.error ) {
 					self.showError( mw.message( 'viki-error-intrawiki-out', node.pageTitle )
@@ -1848,6 +1891,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					var contentNamespaces = wiki.contentNamespaces;
 					var intraNode;
 					var newIntraOutNodes = [];
+					var nodesToVisit = [];
 					for ( var i = 0; i < intraLinks.length; i++ ) {
 						intraNode = self.findNode( "pageTitle", intraLinks[ i ].title );
 						if ( !intraNode || ( intraNode.apiURL !== originNode.apiURL ) ) {
@@ -1865,8 +1909,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 						}
 						if ( intraNode ) {
-							if ( intraNode.hidden )
-								self.unhideNode( intraNode.identifier );
+							if ( intraNode.hidden ) {
+								if( !self.nodeHasHiddenCategory( intraNode ) ) {
+									self.unhideNode( intraNode.identifier );
+								}
+							}
 							var link = self.findLink( originNode.identifier, intraNode.identifier );
 							if ( !link ) {
 								link = self.addLink( originNode, intraNode );
@@ -1876,11 +1923,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								if ( !link.bidirectional && link.target.identifier === originNode.identifier )
 									link.bidirectional = true;
 							}
-							// now visit the wiki page to get more info (does it exist? what categories?)
-							self.visitNode( intraNode );
+							// now add node to list of nodes to be visited to get more info (does it exist? what categories?)
+							nodesToVisit.push(intraNode);
 						}
 						newIntraOutNodes.push( intraNode );
 					}
+					self.visitNodeBatch(nodesToVisit);
+
 					// now call hooks on these nodes
 					self.callHooks( "IntraOutNodeHook", [ newIntraOutNodes ] );
 				}
@@ -1903,6 +1952,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					var contentNamespaces = wiki.contentNamespaces;
 					var intraNode;
 					var newIntraInNodes = [];
+					var nodesToVisit = [];
 					for ( var i = 0; i < intraLinks.length; i++ ) {
 						intraNode = self.findNode( "pageTitle", intraLinks[ i ].title );
 						if ( !intraNode || ( intraNode.apiURL !== originNode.apiURL ) ) {
@@ -1931,11 +1981,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								if ( !link.bidirectional && link.source.identifier === originNode.identifier )
 									link.bidirectional = true;
 							}
-							self.visitNode( intraNode );
+							nodesToVisit.push( intraNode );
 						}
 
 						newIntraInNodes.push( intraNode );
 					}
+					self.visitNodeBatch( nodesToVisit );
+
 					// now call hooks on these nodes
 					self.callHooks( "IntraInNodeHook", [ newIntraInNodes ] );
 
@@ -2111,6 +2163,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				nodesInThisCategory.forEach( function( node ) {
 					self.hideNode( node );
 				} );
+				self.HiddenCategories.push(category);
 			} );
 
 			self.redraw( true );
@@ -2175,6 +2228,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				node.hidingOutgoing = false;
 			} );
 
+			self.HiddenCategories = [];
+
 			self.redraw( true );
 
 		};
@@ -2182,6 +2237,25 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		/*
 		 * Helper Methods
 		 */
+
+		/**
+		 * Determine if a node has a category which is currently hidden on the graph.
+		 *
+		 * @param {node} node object to check
+		 *
+		 * @return {hasHiddenCategory} true if the node has a hidden category, false if not
+		 */
+		 my.VikiJS.prototype.nodeHasHiddenCategory = function( node ) {
+			for(var i = 0; i < self.HiddenCategories.length; i++) {
+				var STOP = false;
+				for(var j = 0; j < node.categories.length; j++) {
+					if(self.HiddenCategories[i] == node.categories[j]) {
+						return true;
+					}
+				}
+			}
+			return false;
+		 }
 
 		/**
 		 * Get the index of a wiki from URL to a page in that wiki.
@@ -2354,7 +2428,9 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			if ( parameters.redrawNode && parameters.redrawNode === true && parameters.node ) {
 				self.redrawNode( parameters.node );
-				self.displayNodeInfo( self.Nodes[ self.SelectedNodeIndex ] );
+				if( self.SelectedNodeIndex !== -1 ) {
+					self.displayNodeInfo( self.Nodes[ self.SelectedNodeIndex ] );
+				}
 			}
 		};
 	};
