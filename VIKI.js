@@ -98,11 +98,16 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 *
 		 * @param {Array} pageTitles Array of initial page titles to render in the graph.
 		 * @param {Array} divs Array of divs to draw the graph components in order:
-		 *
 		 * - main graph div, where the graph lives
 		 * - details div, where the page title and slider live
 		 * - slider div, where the slider lives (inside details div)
 		 * - errors div, where errors are shown
+		 * @param {Object} parameters Other parameters passed into the VIKI graph, including:
+		 * - graph width
+		 * - graph height
+		 * - hook functions to be called
+		 * - file path to the images directory for VIKI images
+		 * - hidden categories
 		 */
 		my.VikiJS.prototype.initialize = function( pageTitles, divs, parameters ) {
 			var self = this;
@@ -126,7 +131,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			this.serverURL = mw.config.get( "wgServer" );
 			this.ImagePath = allParameters.imagePath;
 			this.initialPageTitles = jQuery.parseJSON( pageTitles );
-
+			this.HiddenCategories = allParameters.hiddenCategories || [];
 			if ( this.initialPageTitles === null ) {
 				self.showError( mw.message( 'viki-error-missing-pageTitle' )
 					.text() );
@@ -666,11 +671,15 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			for ( var i = 0; i < self.initialPageTitles.length; i++ ) {
 				var node = self.createWikiNodeFromWiki( self.initialPageTitles[ i ], self.THIS_WIKI );
 				self.addNode( node );
-				self.visitNode( node );
+				self.visitNode( node, function(isHidden, thisNode) {
+					if( !isHidden ) {
+						self.elaborateWikiNode( thisNode );
+					}
+					else {
+						self.hideNodeAndRedraw( thisNode );
+					}
+				} );
 			}
-
-			for ( i = 0; i < self.initialPageTitles.length; i++ )
-				self.elaborateWikiNode( self.Nodes[ i ] );
 
 			self.Force.nodes( self.Nodes );
 			self.Force.links( self.Links );
@@ -1240,7 +1249,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			var info = "<h4 id='vikijs-header'>";
 
-			info += node.fullDisplayName;
+			info += node.fullDisplayName.replace(/&/g, '&amp;')
+											 .replace(/</g, '&lt;')
+											 .replace(/>/g, '&gt;')
+											 .replace(/"/g, '&quot;')
+											 .replace(/\'/g, '&#039;');
 
 			if ( node.nonexistentPage )
 				info += " (Page Does Not Exist)";
@@ -1269,22 +1282,14 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 		my.VikiJS.prototype.visitNodeBatch = function( nodesToVisit ) {
 			var thisContext = this;
-			var nodesVisited = 0;
-			var nodesToHide = [];
-			var totalVisitCount = nodesToVisit.length;
-			self.log("Total nodes to visit: "+totalVisitCount);
+			var nodesVisited = 0, nodesToHide = [], totalVisitCount = nodesToVisit.length;
 			nodesToVisit.forEach(function(node) {
 				self.visitNode(node, function(shouldHide) { 
 					nodesVisited++; 
-					self.log("Nodes visited: "+nodesVisited);
 					if(shouldHide) {
-						self.log("This node should be hidden");
 						nodesToHide.push(node);
 					}
-					else
-						self.log("This node should not be hidden");
 					if(nodesVisited == totalVisitCount) {
-						self.log("All nodes visited");
 						nodesToHide.forEach(function(node) {
 							self.hideNode(node);
 						});
@@ -1300,6 +1305,9 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * in order to verify its existence and collect other information about this page.
 		 *
 		 * @param {Object} intraNode The node being visited.
+		 * @param {Object} callback Function to be called after the visit is complete.
+		 * This function should accept two parameter - boolean for whether the node belongs
+		 * to a currently-hidden category or not, and a reference to the node itself (for scope reasons)
 		 */
 		my.VikiJS.prototype.visitNode = function( intraNode, callback ) {
 			var self = this;
@@ -1309,7 +1317,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			if ( intraNode.visited ) {
 				if( callback )
-					callback( false );
+					callback( false, intraNode );
 				return;
 			}
 
@@ -1330,7 +1338,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					self.showError( mw.message( 'viki-error-visit-node', intraNode.pageTitle )
 						.text() );
 					if( callback )
-						callback( false );
+						callback( false, intraNode );
 				}
 			} );
 			intraNode.visited = true;
@@ -1342,7 +1350,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					originNode.nonexistentPage = true;
 					self.redrawNode( originNode );
 					if(callback)
-						callback( false );
+						callback( false, originNode );
 				} else {
 					// if originNode doesn't already have a categories array, make one
 					if ( !originNode.categories )
@@ -1361,7 +1369,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					}
 
 					if(callback)
-						callback(self.nodeHasHiddenCategory(originNode));
+						callback(self.nodeHasHiddenCategory(originNode), originNode);
 				}
 
 				self.callHooks( "AfterVisitNodeHook", [ originNode ] );
@@ -2128,7 +2136,6 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @param {Object} node node whose incoming links are to be hidden.
 		 */
 		my.VikiJS.prototype.hideIncomingLinks = function( node ) {
-			self.log( "hideIncomingLinks for " + node.pageTitle );
 			self.hideCluster( node, self.HIDE_INCOMING );
 			node.hidingIncoming = true;
 		};
@@ -2141,7 +2148,6 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @param {Object} node node whose outgoing links are to be hidden.
 		 */
 		my.VikiJS.prototype.hideOutgoingLinks = function( node ) {
-			self.log( "hideOutgoingLinks for " + node.pageTitle );
 			self.hideCluster( node, self.HIDE_OUTGOING );
 			node.hidingOutgoing = true;
 		};

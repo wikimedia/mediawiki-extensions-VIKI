@@ -74,6 +74,7 @@ class VikiJS {
 	function display( $parser, $pageTitles, $width, $height ) {
 
 		global $wgVIKI_Function_Hooks;
+		global $wgVIKI_Hidden_Categories;
 		global $wgServer;
 		global $wgScriptPath;
 		global $wgLogo;
@@ -121,7 +122,8 @@ EOT;
 															'height' => $height,
 															'imagePath' => $wgServer . $wgScriptPath .  '/extensions/VIKI/',
 															'hooks' => $wgVIKI_Function_Hooks,
-															'logoURL' => $wgLogo ) ) );
+															'logoURL' => $wgLogo,
+															'hiddenCategories' => $wgVIKI_Hidden_Categories ) ) );
 
 		$script = <<<END
 addEvent(window, 'load', function() {
