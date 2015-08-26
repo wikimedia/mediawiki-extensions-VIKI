@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [
+			"Xuacu"
+		]
+	},
+	"viki-desc": "Dibuxa una gráfica de rede d'enllaces entre páxines wiki u páxines web",
+	"viki-error-title": "Error:",
+	"viki-error-missing-pageTitle": "Tienes de dar polo menos un títulu de páxina."
+}
