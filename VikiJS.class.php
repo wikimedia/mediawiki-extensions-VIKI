@@ -69,9 +69,11 @@ class VikiJS {
 	 * @param array $pageTitles array of page titles to display
 	 * @param integer $width width of the graph
 	 * @param integer $height height of the graph
+	 * @param boolean $showSecondOrderLinks whether the graph should calculate
+	 * and display second order links between non-hub nodes.
 	 */
 
-	function display( $parser, $pageTitles, $width, $height ) {
+	function display( $parser, $pageTitles, $width, $height, $showSecondOrderLinks ) {
 
 		global $wgVIKI_Function_Hooks;
 		global $wgVIKI_Hidden_Categories;
@@ -81,6 +83,7 @@ class VikiJS {
 
 		$div = "VIKI_" . self::$pqnum++;
 		$graphdiv = $div . "_graph";
+		$overlaydiv = $div . "_overlay";
 		$detailsdiv = $div . "_details";
 		$subdetailsdiv = $div . "_details_data";
 		$errorsdiv = $div . "_errors";
@@ -90,7 +93,7 @@ class VikiJS {
 <div id="$div">
 <table>
 <tr><td><div class="vikijs-graph-container" id="$graphdiv">
-</div></td></tr>
+<div id="$overlaydiv"></div></div></td></tr>
 <tr><td><div class="vikijs-detail-panel" id="$detailsdiv">
 <div class="vikijs-subdetail-panel" id="$subdetailsdiv"></div>
 <div class="vikijs-zoom-slider" id="$sliderdiv"></div>
@@ -123,7 +126,8 @@ EOT;
 															'imagePath' => $wgServer . $wgScriptPath .  '/extensions/VIKI/',
 															'hooks' => $wgVIKI_Function_Hooks,
 															'logoURL' => $wgLogo,
-															'hiddenCategories' => $wgVIKI_Hidden_Categories ) ) );
+															'hiddenCategories' => $wgVIKI_Hidden_Categories,
+															'showSecondOrderLinks' => $showSecondOrderLinks ) ) );
 
 		$script = <<<END
 addEvent(window, 'load', function() {

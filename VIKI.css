@@ -6,20 +6,9 @@
 	cursor: pointer;
 }
 
-h4 vikijs-header{
-	color: #23A4FF;
-	font-size: 15px;
-	margin-bottom: 0.5em;
-	display: inline-block;
-	height:25px;
-}
-
 .vikijs-graph-container {
 	float: left;
-	top:55px;
-	padding:5px 5px 5px 5px;
 	border: 1px solid blue;
-	border-radius: 7px;
 	overflow: hidden;
 }
 
@@ -32,9 +21,7 @@ h4 vikijs-header{
 	top:5px;
 	z-index:1;
 	border:1px solid blue;
-	border-radius: 8px;
 	padding-left:10px;
-	padding-right:10px;
 }
 
 .vikijs-errors-panel {
@@ -48,7 +35,7 @@ h4 vikijs-header{
 	max-height: 7em;
 }
 
-.vikijs-zoom-slider{
+.vikijs-zoom-slider {
 float:right;
 /*
  * adjust the slider up 23px
@@ -56,6 +43,7 @@ float:right;
  * at the bottom of the container. This will adjust accordingly.
  */
 top:-18px;
+margin-right:10px;
 }
 
 .contextMenu {
@@ -64,4 +52,13 @@ top:-18px;
 
 #categoryContainer {
 	font-size: .85em;
+}
+
+body.vex-open {
+	overflow: auto !important;
+}
+
+#progressbarDiv .ui-progressbar-value.ui-widget-header {
+	background: blue;
+	height: 106% !important;
 }
