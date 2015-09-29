@@ -1710,6 +1710,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 *
 		 * @param {Object} node1 first node in the link
 		 * @param {Object} node2 second node in the link
+		 * @param {Boolean} hidden whether this link should be hidden (not immediately added to graph)
 		 */
 		my.VikiJS.prototype.addLink = function( node1, node2, hidden ) {
 			var self = this;
@@ -1763,6 +1764,25 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			}
 			return link;
 		};
+
+		/**
+		 * Find link in the list of hidden links, if it exists.
+		 *
+		 * @param {number} from identifier of the first node in the link
+		 * @param {string} to identifier of the second node in the link
+		 *
+		 * @return {Object} link if it exists, else null
+		 */
+		my.VikiJS.prototype.findHiddenLink = function( from, to ) {
+			var self = this;
+			for( var i = 0; i < self.HiddenLinks.length; i++ ) {
+				hiddenSourceIdentifier = self.HiddenLinks[i].source.identifier;
+				hiddenTargetIdentifier = self.HiddenLinks[i].target.identifier;
+				if( self.HiddenLinks[ i ].source.identifier === from.identifier && self.HiddenLinks[ i ].target.identifier === to.identifier )
+					return self.HiddenLinks[ i ];
+			}
+			return null;
+		}
 
 		/*
 		 * Graph Modification Methods
@@ -2008,7 +2028,6 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								nodesChecked++;
 								$('#progressbarDiv').progressbar("value", nodesChecked);
 								$('#textDiv').text("Finding 2nd order links... "+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%");
-								self.log("Second Order Link search progress: " + nodesChecked / totalCheckCount * 100 + "%");
 								if(nodesChecked < totalCheckCount) {
 									return;
 								}
@@ -2031,7 +2050,9 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 								for(var i = 0; i < self.TempHiddenLinks.length; i++) {
 									var link = self.TempHiddenLinks[ i ];
-									self.HiddenLinks.push( link );
+									if( !self.findHiddenLink( link.source, link.target ) ) {
+										self.HiddenLinks.push( link );
+									}
 								}
 								self.TempHiddenLinks = [];
 								self.log("redraw() - from findSecondOrderLinks");
@@ -2044,7 +2065,6 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							nodesChecked++;
 							$('#textDiv').text("Finding 2nd order links..."+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%");
 							$('#progressbarDiv').progressbar("value", nodesChecked);
-							self.log("Second Order Link search progress: " + nodesChecked / totalCheckCount * 100 + "%");
 							if( nodesChecked == totalCheckCount )
 								vex.close( self.progressbarView.data().vex.id );
 						}
@@ -2111,12 +2131,15 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							}
 						}
 						else {
+							var hasHiddenCategory = context.nodeHasHiddenCategory( externalWikiNode );
 							if ( externalWikiNode.hidden ) {
-								context.unhideNode( externalWikiNode.identifier );
+								if( !hasHiddenCategory ) {
+									context.unhideNode( externalWikiNode.identifier );
+								}
 							}
 							link = context.findLink( originNode.identifier, externalWikiNode.identifier );
 							if ( !link )
-								link = context.addLink( originNode, externalWikiNode, false );
+								link = context.addLink( originNode, externalWikiNode, hasHiddenCategory );
 							else {
 								link.bidirectional = true;
 							}
@@ -2142,12 +2165,15 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							}
 						}
 						else {
+							var hasHiddenCategory = context.nodeHasHiddenCategory( externalNode );
 							if ( externalNode.hidden ) {
-								context.unhideNode( externalNode.identifier );
+								if( !hasHiddenCategory ) {
+									context.unhideNode( externalNode.identifier );
+								}
 							}
 							link = context.findLink( originNode.identifier, externalNode.identifier );
 							if ( !link )
-								link = context.addLink( originNode, externalNode, false );
+								link = context.addLink( originNode, externalNode, hasHiddenCategory );
 							else {
 								link.bidirectional = true;
 							}
@@ -2217,14 +2243,15 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							}
 						}
 						else {
+							var hasHiddenCategory = context.nodeHasHiddenCategory( intraNode );
 							if ( intraNode.hidden ) {
-								if( !context.nodeHasHiddenCategory( intraNode ) ) {
+								if( !hasHiddenCategory ) {
 									context.unhideNode( intraNode.identifier );
 								}
 							}
 							var link = context.findLink( originNode.identifier, intraNode.identifier );
 							if ( !link ) {
-								link = context.addLink( originNode, intraNode, false );
+								link = context.addLink( originNode, intraNode, hasHiddenCategory );
 							} else {
 								// if the found link has this originNode as the SOURCE, this is an already known link OUT; disregard.
 								// if the found link has this originNode as the TARGET, this is a NEW link out; set as bidirectional.
@@ -2296,11 +2323,15 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							}
 						}
 						else {
-							if ( intraNode.hidden )
-								context.unhideNode( intraNode.identifier );
+							var hasHiddenCategory = context.nodeHasHiddenCategory( intraNode );
+							if ( intraNode.hidden ) {
+								if( !hasHiddenCategory ) {
+									context.unhideNode( intraNode.identifier );
+								}
+							}
 							var link = context.findLink( intraNode.identifier, originNode.identifier );
 							if ( !link )
-								link = context.addLink( intraNode, originNode, false ); // opposite order because these are pages coming IN
+								link = context.addLink( intraNode, originNode, hasHiddenCategory ); // opposite order because these are pages coming IN
 							else {
 								// if the found link has this originNode as the TARGET, this is an already known link IN; disregard.
 								// if the found link has this originNode as the SOURCE, this is a NEW link in; set as bidirectional.
@@ -2579,6 +2610,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @return {hasHiddenCategory} true if the node has a hidden category, false if not
 		 */
 		 my.VikiJS.prototype.nodeHasHiddenCategory = function( node ) {
+		 	if( node.type == self.EXTERNAL_PAGE_TYPE )
+		 		return false;
+		 	if( !node.categories )
+		 		return false;
+
 			for(var i = 0; i < self.HiddenCategories.length; i++) {
 				var STOP = false;
 				for(var j = 0; j < node.categories.length; j++) {
