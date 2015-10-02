@@ -58,7 +58,7 @@ body.vex-open {
 	overflow: auto !important;
 }
 
-#progressbarDiv .ui-progressbar-value.ui-widget-header {
-	background: blue;
+.progressbarDiv .ui-progressbar-value.ui-widget-header {
+	background: blue !important;
 	height: 106% !important;
 }

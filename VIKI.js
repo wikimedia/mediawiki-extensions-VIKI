@@ -58,6 +58,9 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		this.HIDE_HUB = 0;
 		this.HIDE_INCOMING = 1;
 		this.HIDE_OUTGOING = 2;
+		this.ELABORATION_TYPE_NORMAL = 0;
+		this.ELABORATION_TYPE_SECOND_ORDER_LINKS = 1;
+		this.ELABORATION_TYPE_INITIAL_POPULATION = 2;
 
 		/*
 		 * Mutable Global Variables
@@ -93,6 +96,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		this.ongoingElaborations = 0;
 		this.TempLinks = [];
 		this.TempHiddenLinks = [];
+		this.TempNodes = [];
 		this.OngoingElaborationNodes = [];
 		this.showSecondOrderLinks = false;
 
@@ -686,33 +690,69 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			vex.close( self.loadingView.data().vex.id );
 
-			this.ongoingElaborations = self.initialPageTitles.length;
-
-			for ( var i = 0; i < self.initialPageTitles.length; i++ ) {
-				var node = self.createWikiNodeFromWiki( self.initialPageTitles[ i ], self.THIS_WIKI );
-				self.addNode( node );
-				self.visitNode( node, function(isHidden, thisNode) {
-					if( isHidden ) {
-						self.elaborateWikiNode( thisNode, function( thisNode ) { 
-							self.hideNodeAndRedraw( thisNode ); 
-						}, false );
-					}
-					else {
-						self.elaborateWikiNode( thisNode, null, false );
-					}
-				} );
+			var initialNodeCount = self.initialPageTitles.length;
+			var warningMessage;
+			if(initialNodeCount > 50) {
+				warningMessage = "You are about to start a graph with "+initialNodeCount+" nodes and try to elaborate them all. \
+				The graph is unlikely to successfully handle this number of nodes and may freeze or crash. This is not recommended. Are you sure you want to continue?";
 			}
+			else if(initialNodeCount > 10) {
+				warningMessage = "You are about to start a graph with "+initialNodeCount+" nodes and try to elaborate them all.\
+				This may take a very long time and result in a sluggish graph. Are you sure you want to continue?";
+			}
+			else {
+				warningMessage = null;
+			}
+			if(warningMessage) {
+				self.showWarningDialog( warningMessage, function() { startElaboratingNodes(); }, function() { });
+			}
+			else
+				startElaboratingNodes();
 
-			self.Force.nodes( self.Nodes );
-			self.Force.links( self.Links );
+			function startElaboratingNodes() {
+				self.ongoingElaborations = self.initialPageTitles.length;
 
-			self.redraw(true);
+				var nodesElaborated = 0, totalElaborateCount = self.initialPageTitles.length, nodesToHide = [];
+				self.showProgressOverlay( "Elaborating initial nodes... 0%", totalElaborateCount );
+				for ( var i = 0; i < self.initialPageTitles.length; i++ ) {
+					var node = self.createWikiNodeFromWiki( self.initialPageTitles[ i ], self.THIS_WIKI );
+					self.addNode( node );
+					self.visitNode( node, function(isHidden, thisNode) {
+						if( isHidden ) {
+							nodesToHide.push( thisNode );
+						}
+						self.elaborateWikiNode( thisNode, function( thisNode ) {
+							nodesElaborated++;
+							self.updateProgressOverlay( "Elaborating initial nodes... "+ +(nodesElaborated / totalElaborateCount * 100).toPrecision(4) + "%", nodesElaborated );
+							if( nodesElaborated == totalElaborateCount ) {
+								self.closeProgressOverlay();
+								self.TempNodes.forEach(function(node) {
+									self.addNode(node);
+								});
+								self.TempNodes = [];
 
-			// after initial population, by default select the first node.
-			self.SelectedNodeIndex = 0;
-			self.displayNodeInfo( self.Nodes[ 0 ] );
-			self.redrawNode( self.Nodes[ 0 ] );
+								self.addTempLinksToGraph();
 
+								nodesToHide.forEach( function(node) {
+									self.hideNode( node, false );
+								} );
+								self.log("redraw() - from populateInitialGraph() after all elaborations complete");
+								self.redraw( true );
+							}
+						}, self.ELABORATION_TYPE_INITIAL_POPULATION );
+					} );
+				}
+
+				self.Force.nodes( self.Nodes );
+				self.Force.links( self.Links );
+				self.log("redraw() - from populateInitialGraph()");
+				self.redraw(true);
+
+				// after initial population, by default select the first node.
+				self.SelectedNodeIndex = 0;
+				self.displayNodeInfo( self.Nodes[ 0 ] );
+				self.redrawNode( self.Nodes[ 0 ] );
+			}
 		};
 
 		/*
@@ -759,6 +799,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			newNodes.on( "contextmenu", function( d ) {
 				self.SelectedNodeIndex = d.index;
+				self.log("redraw() - from contextmenu");
 				self.redraw( false );
 			} );
 
@@ -1640,50 +1681,43 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 		my.VikiJS.prototype.findNode = function( property, value ) {
 			var self = this;
-			var oldString, newString, newValue;
 
-			for ( var i = 0; i < self.Nodes.length; i++ ) {
-				if ( property === 'pageTitle' ) {
-					// a specific check for page titles - the first letter is case insensitive
-					oldString = self.Nodes[ i ][ property ];
-					if ( oldString ) {
-						newString = self.replaceAt( oldString, oldString.indexOf( ":" ) + 1,
-							oldString.charAt( oldString.indexOf( ":" ) + 1 )
-							.toLowerCase() );
-						newValue = self.replaceAt( value, value.indexOf( ":" ) + 1,
-							value.charAt( value.indexOf( ":" ) + 1 )
-							.toLowerCase() );
-						if ( newString === newValue )
-							return self.Nodes[ i ];
-					}
-				} else if ( typeof self.Nodes[ i ][ property ] !== 'undefined' && self.Nodes[ i ][ property ] === value ) {
-					return self.Nodes[ i ];
-				}
-			}
+			var ret = findInList( self.Nodes );
+			if(!ret)
+				ret = findInList( self.HiddenNodes );
+			if(!ret)
+				ret = findInList( self.TempNodes );
+			return ret;
 
-			for ( i = 0; i < self.HiddenNodes.length; i++ ) {
-				if ( property === 'pageTitle' ) {
-					// a specific check for page titles - the first letter is case insensitive
-					oldString = self.HiddenNodes[ i ][ property ];
-					if ( oldString ) {
-						newString = self.replaceAt( oldString, oldString.indexOf( ":" ) + 1, oldString.charAt( oldString.indexOf( ":" ) + 1 )
-							.toLowerCase() );
-						newValue = self.replaceAt( value, value.indexOf( ":" ) + 1, value.charAt( value.indexOf( ":" ) + 1 )
-							.toLowerCase() );
-						if ( newString === newValue )
-							return self.HiddenNodes[ i ];
+			function findInList( list ) {
+				var oldString, newString, newValue;
+
+				for ( var i = 0; i < list.length; i++ ) {
+					if ( property === 'pageTitle' ) {
+						// a specific check for page titles - the first letter is case insensitive
+						oldString = list[ i ][ property ];
+						if ( oldString ) {
+							newString = self.replaceAt( oldString, oldString.indexOf( ":" ) + 1,
+								oldString.charAt( oldString.indexOf( ":" ) + 1 )
+								.toLowerCase() );
+							newValue = self.replaceAt( value, value.indexOf( ":" ) + 1,
+								value.charAt( value.indexOf( ":" ) + 1 )
+								.toLowerCase() );
+							if ( newString === newValue )
+								return list[ i ];
+						}
+					} else if ( typeof list[ i ][ property ] !== 'undefined' && list[ i ][ property ] === value ) {
+						return list[ i ];
 					}
-				} else if ( typeof self.HiddenNodes[ i ][ property ] !== 'undefined' && self.HiddenNodes[ i ][ property ] === value ) {
-					return self.HiddenNodes[ i ];
 				}
+				return null;
 			}
-			return null;
 		};
 
 		/**
 		 * Add a new node to the graph.
 		 *
-		 * This method is called internally when a newly created node is to be added to the VIKI graph.
+		 * This method is called internally when a newly created node is added to the VIKI graph.
 		 *
 		 * @param {Object} node to be added to the graph.
 		 */
@@ -1731,6 +1765,17 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			return link;
 		};
 
+		my.VikiJS.prototype.addTempLink = function( node1, node2 ) {
+			var self = this;
+			var link = {
+				source: node1,
+				target: node2,
+				bidirectional: false
+			};
+			self.TempLinks.push( link );
+			return link;
+		}
+
 		my.VikiJS.prototype.addSecondOrderLink = function( node1, node2, hidden) {
 			var self = this;
 
@@ -1746,6 +1791,41 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				self.TempLinks.push( link );
 			}
 			return link;
+		}
+
+		my.VikiJS.prototype.addTempLinksToGraph = function() {
+			for( var i = 0; i < self.TempLinks.length; i++ ) {
+				var link = self.TempLinks[ i ];
+				var alreadyFound = self.findLink( link.source.identifier, link.target.identifier );
+				if( alreadyFound ) {
+					// If this link was found, check if it's a duplicate (source and targets are same in both) or bidirectional (source and targets are reversed)
+					if(link.source.identifier === alreadyFound.target.identifier && link.source.identifier === alreadyFound.target.identifier)
+						alreadyFound.bidirectional = true;
+					continue;
+				}
+				self.Links.push( link );
+				self.LinkMap[ link.source.identifier + "," + link.target.identifier ] = link;
+				self.LinkMap[ link.target.identifier + "," + link.source.identifier ] = link;
+			}
+			self.TempLinks = [];
+		}
+
+		my.VikiJS.prototype.addHiddenLinksToGraph = function() {
+			for ( var i = 0; i < self.HiddenLinks.length; i++ ) {
+				var link = self.HiddenLinks[ i ];
+				var alreadyFound = self.findLink( link.source.identifier, link.target.identifier );
+				if( alreadyFound ) {
+					// If this link was found, check if it's a duplicate (source and targets are same in both) or bidirectional (source and targets are reversed)
+					if(link.source.identifier === alreadyFound.target.identifier && link.source.identifier === alreadyFound.target.identifier)
+						alreadyFound.bidirectional = true;
+					continue;
+				}
+				self.Links.push( link );
+				self.LinkMap[ link.source.identifier + "," + link.target.identifier ] = link;
+				self.LinkMap[ link.target.identifier + "," + link.source.identifier ] = link;
+			}
+
+			self.HiddenLinks = [];
 		}
 
 		/**
@@ -1803,7 +1883,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			var node = self.Nodes[ index ];
 			if ( node.type === self.WIKI_PAGE_TYPE ) {
 				self.ongoingElaborations++;
-				self.elaborateWikiNode( node, null, false );
+				self.elaborateWikiNode( node, null, self.ELABORATION_TYPE_NORMAL );
 			}
 		};
 
@@ -1816,8 +1896,10 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * is called internally whenever the user chooses to elaborate a node.
 		 *
 		 * @param {Object} node node to elaborate
+		 * @param {Object} completionHandler code block to execute at the end of elaboration
+		 * @param {Integer} elaborationType type of elaboration: normal, 2nd order links, initial population
 		 */
-		my.VikiJS.prototype.elaborateWikiNode = function( node, completionHandler, forSecondOrderLinks ) {
+		my.VikiJS.prototype.elaborateWikiNode = function( node, completionHandler, elaborationType ) {
 			var self = this;
 
 			// 1. Get external links OUT from page.
@@ -1836,12 +1918,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				},
 				success: function( data, textStatus, jqXHR ) {
 					externalElaborationData = data;
-					checkElaborationQueriesComplete( node, completionHandler, forSecondOrderLinks );
+					checkElaborationQueriesComplete( node, completionHandler, elaborationType );
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-external-links', node.pageTitle )
 						.text() );
 					externalElaborationData = {};
+					checkElaborationQueriesComplete( node, completionHandler, elaborationType );
 				}
 			} );
 
@@ -1859,12 +1942,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				},
 				success: function( data, textStatus, jqXHR ) {
 					intraOutElaborationData = data;
-					checkElaborationQueriesComplete( node, completionHandler, forSecondOrderLinks );
+					checkElaborationQueriesComplete( node, completionHandler, elaborationType );
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-intrawiki-out', node.pageTitle )
 						.text() );
 					intraOutElaborationData = {};
+					checkElaborationQueriesComplete( node, completionHandler, elaborationType );
 				}
 			} );
 			// 3. Get intra-wiki links IN to this page.
@@ -1881,20 +1965,21 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				},
 				success: function( data, textStatus, jqXHR ) {
 					intraInElaborationData = data;
-					checkElaborationQueriesComplete( node, completionHandler, forSecondOrderLinks );
+					checkElaborationQueriesComplete( node, completionHandler, elaborationType );
 				},
 				error: function() {
 					self.showError( mw.message( 'viki-error-intrawiki-in', node.pageTitle )
 						.text() );
 					intraInElaborationData = {};
+					checkElaborationQueriesComplete( node, completionHandler, elaborationType );
 				}
 			} );
-			if( !forSecondOrderLinks ) {
+			if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS ) {
 				node.elaborated = true;
 				self.displayNodeInfo( node );
 			}
 
-			function checkElaborationQueriesComplete( originNode, completionHandler, forSecondOrderLinks ) {
+			function checkElaborationQueriesComplete( originNode, completionHandler, elaborationType ) {
 				if(externalElaborationData !== undefined && intraOutElaborationData !== undefined && intraInElaborationData !== undefined) {
 					var externalLinksList = externalElaborationData.query.pages[ Object.keys( externalElaborationData.query.pages )[ 0 ] ].extlinks;
 					var intraLinksOutList = intraOutElaborationData.query.pages[ Object.keys( intraOutElaborationData.query.pages )[ 0 ] ].links;
@@ -1906,32 +1991,16 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 					var sum = externalLinksCount + intraLinksOutCount + intraLinksInCount;
 
-					if(sum > 50 && !forSecondOrderLinks) {
-						vex.dialog.buttons.YES.text = 'Yes';
-						vex.dialog.buttons.NO.text = 'No';
-
-						vex.dialog.confirm({
-							css: {
-								"position": "absolute",
-								"top" : "auto",
-								"left" : "auto",
-								"right" : "auto",
-								"bottom" : "auto",
-								"height" : self.INITIAL_HEIGHT+"px",
-								"width" : self.INITIAL_WIDTH+"px"
-							},
-							appendLocation: '#VIKI_'+self.ID+'_overlay',
-							message: "About to add "+sum+" nodes... this may take a very long time and result in a sluggish graph. Are you sure you want to?",
-							callback: function(value) {
-								if(value) {
-									completeElaboration();
-								}
-								else {
-									node.elaborated = false;
-									self.ongoingElaborations--;
-								}
-							}
-						});
+					if(sum > 50 && elaborationType === self.ELABORATION_TYPE_NORMAL) {
+						self.showWarningDialog("About to add "+sum+" nodes... this may take a very long time and result in a sluggish graph. Are you sure you want to?", 
+							function() { 
+								completeElaboration(); 
+							}, 
+							function() { 
+								node.elaborated = false;
+								self.ongoingElaborations--;
+							} 
+						);
 					}
 					else {
 						completeElaboration();
@@ -1939,11 +2008,16 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				}
 
 				function completeElaboration( ) {
-					var newExternalNodes = self.externalLinksSuccessHandler( self, externalElaborationData, node, forSecondOrderLinks );
-					var newIntraOutNodes = self.intraWikiOutSuccessHandler( self, intraOutElaborationData, node, forSecondOrderLinks );
-					var newIntraInNodes = self.intraWikiInSuccessHandler( self, intraInElaborationData, node, forSecondOrderLinks );
+					var newExternalNodes = self.externalLinksSuccessHandler( self, externalElaborationData, node, elaborationType );
+					var newIntraOutNodes = self.intraWikiOutSuccessHandler( self, intraOutElaborationData, node, elaborationType );
+					var newIntraInNodes = self.intraWikiInSuccessHandler( self, intraInElaborationData, node, elaborationType );
 
-					if( !forSecondOrderLinks ) {
+					if( elaborationType === self.ELABORATION_TYPE_NORMAL ) {
+						self.log("redraw() - from completeElaboration()");
+						self.redraw( true );
+					}
+					
+					if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS ) {
 						self.OngoingElaborationNodes = self.OngoingElaborationNodes.concat(newExternalNodes);
 						self.OngoingElaborationNodes = self.OngoingElaborationNodes.concat(newIntraOutNodes);
 						self.OngoingElaborationNodes = self.OngoingElaborationNodes.concat(newIntraInNodes);
@@ -1953,24 +2027,26 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						completionHandler( originNode );
 					}
 
-					if( !forSecondOrderLinks ) {
+					if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS ) {
 						if( self.showSecondOrderLinks ) {
-							findSecondOrderLinks( );
+							self.ongoingElaborations--;
+							if( self.ongoingElaborations == 0 ) {
+								findSecondOrderLinks( );
+							}
 							self.callHooks( "NodeElaborationCompleteHook", [ originNode ] );
 						}
 						else {
-							self.visitNodeBatch(self.OngoingElaborationNodes.filter( function( node ) { return node.apiURL !== null && node.apiURL !== undefined; } ) );
+							self.ongoingElaborations--;
+							self.log("self.ongoingElaborations = " + self.ongoingElaborations);
+							if(self.ongoingElaborations == 0) {
+								self.visitNodeBatch(self.OngoingElaborationNodes.filter( function( node ) { return node.apiURL !== null && node.apiURL !== undefined; } ) );
+							}
 						}
 					}
 				}
 			}
 
 			function findSecondOrderLinks( ) {
-				self.ongoingElaborations--;
-				if( self.ongoingElaborations > 0 ) {
-					return;
-				}
-
 				// We must check all of the newly-added (unvisited) nodes (self.OngoingElaborationNodes), 
 				// as well as all "external wiki" nodes currently in the graph (e.g. wiki nodes from another wiki).
 				// The other nodes in the graph from "this wiki" we already know about, as their links to 
@@ -1979,101 +2055,54 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					return !node.visited; 
 				} ).concat( 
 					self.Nodes.filter( function( node ) { 
-						return node.type == self.WIKI_PAGE_TYPE && node.wikiTitle !== self.THIS_WIKI; 
+						return node.type === self.WIKI_PAGE_TYPE && node.wikiTitle !== self.THIS_WIKI; 
 					} )
 				);
 
 				var nodesChecked = 0, totalCheckCount = nodesToCheck.length;
-				if(totalCheckCount > 0) {
-					// Set up the progress bar view for calculating 2nd order links
-					var secondOrderContent = '\
-					<div id="secondOrderDiv">\
-						<div id="textDiv">Finding 2nd order links... 0%</div>\
-						<div id="progressbarDiv"></div>\
-					</div>';
-
-					var loadingStyle = '\
-					<style>\
-						#textDiv {\
-							text-align: center;\
-						}\
-					</style>';
-
-					self.progressbarView = vex.open( {
-						content: secondOrderContent,
-						css: {
-							"position": "absolute",
-							"top" : "auto",
-							"left" : "auto",
-							"right" : "auto",
-							"bottom" : "auto",
-							"height" : self.INITIAL_HEIGHT+"px",
-							"width" : self.INITIAL_WIDTH+"px"
-						},
-						contentCSS: {
-							width: '300px'
-						},
-						appendLocation: '#VIKI_'+self.ID+'_overlay',
-						afterOpen: function( $vexContent ) {
-							$vexContent.append( loadingStyle );
-							$('#progressbarDiv').progressbar({ max: nodesToCheck.length, value: 0 });
-						},
-						showCloseButton: false
-					} );
-						
-					for( var i = 0; i < nodesToCheck.length; i++ ) {
-						var node = nodesToCheck[i];
-						if( node.type == self.WIKI_PAGE_TYPE && node.searchable ) {
-							self.elaborateWikiNode( node, function( node ) { 
-								nodesChecked++;
-								$('#progressbarDiv').progressbar("value", nodesChecked);
-								$('#textDiv').text("Finding 2nd order links... "+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%");
-								if(nodesChecked < totalCheckCount) {
-									return;
-								}
-								vex.close( self.progressbarView.data().vex.id );
-
-								for(var i = 0; i < self.TempLinks.length; i++) {
-									var link = self.TempLinks[ i ];
-									alreadyFound = self.findLink( link.source.identifier, link.target.identifier );
-									if( alreadyFound ) {
-										// If this link was found, check if it's a duplicate (source and targets are same in both) or bidirectional (source and targets are reversed)
-										if(link.source.identifier == alreadyFound.target.identifier && link.source.identifier == alreadyFound.target.identifier)
-											alreadyFound.bidirectional = true;
-										continue;
-									}
-									self.Links.push( link );
-									self.LinkMap[ link.source.identifier + "," + link.target.identifier ] = link;
-									self.LinkMap[ link.target.identifier + "," + link.source.identifier ] = link;
-								}
-								self.TempLinks = [];
-
-								for(var i = 0; i < self.TempHiddenLinks.length; i++) {
-									var link = self.TempHiddenLinks[ i ];
-									if( !self.findHiddenLink( link.source, link.target ) ) {
-										self.HiddenLinks.push( link );
-									}
-								}
-								self.TempHiddenLinks = [];
-								self.log("redraw() - from findSecondOrderLinks");
-								self.redraw( true );
-							
-								self.visitNodeBatch(self.OngoingElaborationNodes.filter( function( node ) { return node.apiURL !== null && node.apiURL !== undefined; } ) );
-							}, true );
-						}
-						else {
+				if(totalCheckCount <= 0) {
+					return;
+				}
+				self.showProgressOverlay("Finding 2nd order links... 0%", nodesToCheck.length );
+					
+				for( var i = 0; i < nodesToCheck.length; i++ ) {
+					var node = nodesToCheck[i];
+					if( node.type === self.WIKI_PAGE_TYPE && node.searchable ) {
+						self.elaborateWikiNode( node, function( node ) { 
 							nodesChecked++;
-							$('#textDiv').text("Finding 2nd order links..."+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%");
-							$('#progressbarDiv').progressbar("value", nodesChecked);
-							if( nodesChecked == totalCheckCount )
-								vex.close( self.progressbarView.data().vex.id );
-						}
+							self.updateProgressOverlay( "Finding 2nd order links..."+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%", nodesChecked);
+							if(nodesChecked < totalCheckCount) {
+								return;
+							}
+
+							self.closeProgressOverlay( );
+
+							self.addTempLinksToGraph();
+
+							for(var i = 0; i < self.TempHiddenLinks.length; i++) {
+								var link = self.TempHiddenLinks[ i ];
+								if( !self.findHiddenLink( link.source, link.target ) ) {
+									self.HiddenLinks.push( link );
+								}
+							}
+							self.TempHiddenLinks = [];
+							self.log("redraw() - from findSecondOrderLinks");
+							self.redraw( true );
+						
+							self.visitNodeBatch(self.OngoingElaborationNodes.filter( function( node ) { return node.apiURL !== null && node.apiURL !== undefined; } ) );
+						}, self.ELABORATION_TYPE_SECOND_ORDER_LINKS );
+					}
+					else {
+						nodesChecked++;
+						self.updateProgressOverlay( "Finding 2nd order links..."+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%", nodesChecked);
+						if( nodesChecked === totalCheckCount )
+							self.closeProgressOverlay( );
 					}
 				}
 			}
 		};
 
-	my.VikiJS.prototype.externalLinksSuccessHandler = function( context, data, originNode, forSecondOrderLinks ) {
+	my.VikiJS.prototype.externalLinksSuccessHandler = function( context, data, originNode, elaborationType ) {
 
 			if ( data.error ) {
 				context.showError( mw.message( 'viki-error-external-links', node.pageTitle )
@@ -2107,17 +2136,21 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 						var externalWikiNode = context.findNode( "URL", thisURL );
 						if ( !externalWikiNode ) {
-							if( forSecondOrderLinks )
+							if( elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
 								continue;
 
 							externalWikiNode = context.createWikiNodeFromExternalLink( thisURL, index );
 							context.callHooks( "NewWikiNodeCreatedHook", [ externalWikiNode, originNode ] );
 							if ( externalWikiNode.unadded )
 								continue;
-							else
-								context.addNode( externalWikiNode );
+							else {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									context.TempNodes.push( externalWikiNode );
+								else
+									context.addNode( externalWikiNode );
+							}
 						}
-						if(forSecondOrderLinks) {
+						if(elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS) {
 							link = context.findLink( originNode.identifier, externalWikiNode.identifier );
 							if ( !link ) {
 								// If the link doesn't exist, add it - hidden, if necessary.
@@ -2138,8 +2171,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								}
 							}
 							link = context.findLink( originNode.identifier, externalWikiNode.identifier );
-							if ( !link )
-								link = context.addLink( originNode, externalWikiNode, hasHiddenCategory );
+							if ( !link ) {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									link = context.addTempLink( originNode, externalWikiNode );
+								else
+									link = context.addLink( originNode, externalWikiNode, hasHiddenCeategory );
+							}
+								
 							else {
 								link.bidirectional = true;
 							}
@@ -2148,17 +2186,21 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					} else {
 						externalNode = context.findNode( "URL", thisURL );
 						if ( !externalNode ) {
-							if( forSecondOrderLinks )
+							if( elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
 								continue;
 
 							externalNode = context.createExternalNode( thisURL );
 							context.callHooks( "NewExternalNodeCreatedHook", [ externalNode, originNode ] );
 							if ( externalNode.unadded )
 								continue;
-							else
-								context.addNode( externalNode );
+							else {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									context.TempNodes.push( externalNode );
+								else
+									context.addNode( externalNode );
+							}
 						}
-						if(forSecondOrderLinks) {
+						if(elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS) {
 							link = context.findLink( originNode.identifier, externalNode.identifier );
 							if ( !link ) {
 								link = context.addSecondOrderLink( originNode, externalNode, externalNode.hidden );
@@ -2172,8 +2214,12 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								}
 							}
 							link = context.findLink( originNode.identifier, externalNode.identifier );
-							if ( !link )
-								link = context.addLink( originNode, externalNode, hasHiddenCategory );
+							if ( !link ) {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									link = context.addTempLink( originNode, externalNode );
+								else
+									link = context.addLink( originNode, externalNode, hasHiddenCategory );
+							}
 							else {
 								link.bidirectional = true;
 							}
@@ -2183,17 +2229,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						newExternalNodes.push( externalNode );
 				}
 
-				if( !forSecondOrderLinks )
-					context.callHooks( "ExternalNodeHook", [ newExternalNodes.filter(function(node) { return node.type == self.EXTERNAL_PAGE_TYPE; } ) ] );
-			}
-			if( !forSecondOrderLinks ) {
-				self.log("redraw() - from externalLinksSuccessHandler");
-				context.redraw( true );
+				if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
+					context.callHooks( "ExternalNodeHook", [ newExternalNodes.filter(function(node) { return node.type === self.EXTERNAL_PAGE_TYPE; } ) ] );
 			}
 			return newExternalNodes;
 		}
 
-		my.VikiJS.prototype.intraWikiOutSuccessHandler = function( context, data, originNode, forSecondOrderLinks ) {
+		my.VikiJS.prototype.intraWikiOutSuccessHandler = function( context, data, originNode, elaborationType ) {
 			var thisContext = this;
 
 			if ( data.error ) {
@@ -2213,7 +2255,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				for ( var i = 0; i < intraLinks.length; i++ ) {
 					intraNode = context.findNode( "pageTitle", intraLinks[ i ].title );
 					if ( !intraNode || ( intraNode.apiURL !== originNode.apiURL ) ) {
-						if( forSecondOrderLinks )
+						if( elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
 							continue;
 
 						// add the node to the graph immediately if it is within the wiki's content namespaces.
@@ -2223,14 +2265,18 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							context.callHooks( "NewWikiNodeCreatedHook", [ intraNode, originNode ] );
 							if ( intraNode.unadded )
 								continue;
-							else
-								context.addNode( intraNode );
+							else {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									context.TempNodes.push( intraNode );
+								else
+									context.addNode( intraNode );
+							}
 						} else
 							continue;
 
 					}
 					if ( intraNode ) {
-						if(forSecondOrderLinks) {
+						if(elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS) {
 							var link = context.findLink( originNode.identifier, intraNode.identifier );
 							if ( !link ) {
 								// If the link doesn't exist, add it - hidden, if necessary.
@@ -2251,8 +2297,12 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							}
 							var link = context.findLink( originNode.identifier, intraNode.identifier );
 							if ( !link ) {
-								link = context.addLink( originNode, intraNode, hasHiddenCategory );
-							} else {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									link = context.addTempLink( originNode, intraNode );
+								else
+									link = context.addLink( originNode, intraNode, hasHiddenCategory );
+							} 
+							else {
 								// if the found link has this originNode as the SOURCE, this is an already known link OUT; disregard.
 								// if the found link has this originNode as the TARGET, this is a NEW link out; set as bidirectional.
 								if ( !link.bidirectional && link.target.identifier === originNode.identifier )
@@ -2263,17 +2313,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					newIntraOutNodes.push( intraNode );
 				}
 
-				if( !forSecondOrderLinks )
+				if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
 					context.callHooks( "IntraOutNodeHook", [ newIntraOutNodes ] );
-			}
-			if( !forSecondOrderLinks ) {
-				self.log("redraw() - from intraWikiOutSuccessHandler");
-				context.redraw( true );
 			}
 			return newIntraOutNodes;
 		}
 
-		my.VikiJS.prototype.intraWikiInSuccessHandler = function( context, data, originNode, forSecondOrderLinks ) {
+		my.VikiJS.prototype.intraWikiInSuccessHandler = function( context, data, originNode, elaborationType ) {
 
 			if ( data.error ) {
 				context.showError( mw.message( 'viki-error-intrawiki-in', node.pageTitle )
@@ -2293,7 +2339,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				for ( var i = 0; i < intraLinks.length; i++ ) {
 					intraNode = context.findNode( "pageTitle", intraLinks[ i ].title );
 					if ( !intraNode || ( intraNode.apiURL !== originNode.apiURL ) ) {
-						if( forSecondOrderLinks )
+						if( elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
 							continue;
 						
 						// add the node to the graph immediately if it is within the wiki's content namespaces.
@@ -2303,14 +2349,18 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							context.callHooks( "NewWikiNodeCreatedHook", [ intraNode, originNode ] );
 							if ( intraNode.unadded )
 								continue;
-							else
-								context.addNode( intraNode );
+							else {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									context.TempNodes.push( intraNode );
+								else
+									context.addNode( intraNode );
+							}
 						} else
 							continue;
 
 					}
 					if ( intraNode ) {
-						if(forSecondOrderLinks) {
+						if(elaborationType === self.ELABORATION_TYPE_SECOND_ORDER_LINKS) {
 							var link = context.findLink( intraNode.identifier, originNode.identifier );
 							if ( !link )
 								// If the link doesn't exist, add it - hidden, if necessary.
@@ -2330,8 +2380,12 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								}
 							}
 							var link = context.findLink( intraNode.identifier, originNode.identifier );
-							if ( !link )
-								link = context.addLink( intraNode, originNode, hasHiddenCategory ); // opposite order because these are pages coming IN
+							if ( !link ) {
+								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
+									link = context.addTempLink( intraNode, originNode ); // opposite order because these are pages coming IN
+								else
+									link = context.addLink( intraNode, originNode, hasHiddenCategory ); // opposite order because these are pages coming IN
+							}
 							else {
 								// if the found link has this originNode as the TARGET, this is an already known link IN; disregard.
 								// if the found link has this originNode as the SOURCE, this is a NEW link in; set as bidirectional.
@@ -2344,17 +2398,100 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					newIntraInNodes.push( intraNode );
 				}
 
-				if( !forSecondOrderLinks )
+				if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS )
 					context.callHooks( "IntraInNodeHook", [ newIntraInNodes ] );
 
-			}
-			if( !forSecondOrderLinks ) {
-				self.log("redraw() - from intraWikiInSuccessHandler");
-				context.redraw( true );
 			}
 			return newIntraInNodes;
 		}
 
+		/**
+		 * Show a progress bar overlay over the graph.
+		 *
+		 * @param {String} text text to show above the progress bar
+		 * @param {Integer} maxValue max value of the progress bar
+		 */
+		my.VikiJS.prototype.showProgressOverlay = function( text, maxValue ) {
+			// Set up the progress bar view for calculating 2nd order links
+			var secondOrderContent = '\
+			<div id="overlayDiv">\
+				<div id="textDiv">'+text+'</div>\
+				<div class="progressbarDiv"></div>\
+			</div>';
+
+			var loadingStyle = '\
+			<style>\
+				#textDiv {\
+					text-align: center;\
+				}\
+			</style>';
+
+			self.progressbarView = vex.open( {
+				content: secondOrderContent,
+				css: {
+					"position": "absolute",
+					"top" : "auto",
+					"left" : "auto",
+					"right" : "auto",
+					"bottom" : "auto",
+					"height" : self.INITIAL_HEIGHT+"px",
+					"width" : self.INITIAL_WIDTH+"px"
+				},
+				contentCSS: {
+					width: '300px'
+				},
+				appendLocation: '#VIKI_'+self.ID+'_overlay',
+				afterOpen: function( $vexContent ) {
+					$vexContent.append( loadingStyle );
+					$('.progressbarDiv').progressbar({ max: maxValue, value: 0 });
+				},
+				showCloseButton: false
+			} );
+		}
+
+		/**
+		 * Update the progress overlay.
+		 *
+		 * @param {String} text text to show above the progress bar
+		 * @param {Integer} value current value of the progress bar
+		 */
+		my.VikiJS.prototype.updateProgressOverlay = function( text, value ) {
+			$('#textDiv').text(text);
+			$('.progressbarDiv').progressbar("value", value);
+		}
+
+		/**
+		 * Close the progress overlay.
+		 */
+		my.VikiJS.prototype.closeProgressOverlay = function( ) {
+			vex.close( self.progressbarView.data().vex.id );
+			self.progressbarView = null;
+		}
+
+		my.VikiJS.prototype.showWarningDialog = function( text, yesCompletion, noCompletion ) {
+			vex.dialog.buttons.YES.text = 'Yes';
+			vex.dialog.buttons.NO.text = 'No';
+
+			vex.dialog.confirm({
+				css: {
+					"position": "absolute",
+					"top" : "auto",
+					"left" : "auto",
+					"right" : "auto",
+					"bottom" : "auto",
+					"height" : self.INITIAL_HEIGHT+"px",
+					"width" : self.INITIAL_WIDTH+"px"
+				},
+				appendLocation: '#VIKI_'+self.ID+'_overlay',
+				message: text,
+				callback: function(value) {
+					if( value )
+						if(yesCompletion) yesCompletion();
+					else
+						if(noCompletion) noCompletion();
+				}
+			});
+		}
 
 		/**
 		 * Hide this node and all associated links from the graph.
@@ -2576,15 +2713,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			self.HiddenNodes = [];
 
 			// 2. Add all hidden links back into main Links array. Also add all hidden links back into the LinkMap.
-			// Then destroy hidden links array.
-			for ( i = 0; i < self.HiddenLinks.length; i++ ) {
-				var link = self.HiddenLinks[ i ];
-				self.Links.push( link );
-				self.LinkMap[ link.source.identifier + "," + link.target.identifier ] = link;
-				self.LinkMap[ link.target.identifier + "," + link.source.identifier ] = link;
-			}
-
-			self.HiddenLinks = [];
+			self.addHiddenLinksToGraph();
 
 			self.Nodes.forEach( function( node ) {
 				node.hidingIncoming = false;
@@ -2610,7 +2739,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @return {hasHiddenCategory} true if the node has a hidden category, false if not
 		 */
 		 my.VikiJS.prototype.nodeHasHiddenCategory = function( node ) {
-		 	if( node.type == self.EXTERNAL_PAGE_TYPE )
+		 	if( node.type === self.EXTERNAL_PAGE_TYPE )
 		 		return false;
 		 	if( !node.categories )
 		 		return false;

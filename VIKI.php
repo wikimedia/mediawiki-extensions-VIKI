@@ -31,7 +31,7 @@
 * refreshLinks.php after setting this flag.
 */
 
-define( 'VIKIJS_VERSION', '1.2.1' );
+define( 'VIKIJS_VERSION', '1.3' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
@@ -121,12 +121,28 @@ function viki( Parser $parser ) {
 	$delimiter = isset( $paramDictionary['delimiter'] ) ? $paramDictionary['delimiter'] : ',';
 	$pageTitles = isset( $paramDictionary['pageTitles'] ) ? explode( $delimiter,
 			$paramDictionary['pageTitles'] ) : array( $parser->getTitle()->getText() );
+	$categories = isset( $paramDictionary['categories'] ) ? explode( $delimiter,
+			$paramDictionary['categories'] ) : array();
 	if( isset( $paramDictionary['secondOrderLinks'] ) )
 		$showSecondOrderLinks = $paramDictionary['secondOrderLinks'] == 'true' ? true : false;
 	else if( $wgVIKI_Second_Order_Links !== null )
 		$showSecondOrderLinks = $wgVIKI_Second_Order_Links;
 	else
 		$showSecondOrderLinks = false;
+
+	$pageTitles = array_map('trim', $pageTitles);
+	foreach($categories as $categoryName) {
+		$categoryObject = Category::newFromName($categoryName);
+		$categoryMembers = $categoryObject->getMembers();
+		foreach($categoryMembers->res as $row) {
+			$titleObject = Title::newFromID( $row->page_id );
+			if( $titleObject ) {
+				$titleText = $titleObject->getPrefixedText();
+				if( !in_array( $titleText, $pageTitles ) )
+					$pageTitles[] = $titleText;
+			}
+		}
+	}
 
 	$vikiJS = new VikiJS;
 	$output = $vikiJS->display( $parser, $pageTitles, $width, $height, $showSecondOrderLinks );
