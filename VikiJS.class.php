@@ -38,6 +38,65 @@ class VikiJS {
 	private static $functionHooks = array();
 	private static $functionHookParams = array();
 
+	static function efVIKIParserFunction_Setup ( & $parser ) {
+		$parser->setFunctionHook( 'viki', 'VikiJS::viki' );
+		return true;
+	}
+
+	static function viki( Parser $parser ) {
+		$myparams = func_get_args();
+		array_shift( $myparams );
+
+		$paramDictionary = VikiJS::vikiJS_parseParameters( $myparams );
+		global $wgVIKI_Second_Order_Links;
+
+		$width = isset( $paramDictionary['width'] ) ? (int) $paramDictionary['width'] : 1200;
+		$height = isset( $paramDictionary['height'] ) ? (int) $paramDictionary['height'] : 600;
+		$delimiter = isset( $paramDictionary['delimiter'] ) ? $paramDictionary['delimiter'] : ',';
+		$pageTitles = isset( $paramDictionary['pageTitles'] ) ? explode( $delimiter,
+				$paramDictionary['pageTitles'] ) : array( $parser->getTitle()->getText() );
+		$categories = isset( $paramDictionary['categories'] ) ? explode( $delimiter,
+				$paramDictionary['categories'] ) : array();
+		if( isset( $paramDictionary['secondOrderLinks'] ) )
+			$showSecondOrderLinks = $paramDictionary['secondOrderLinks'] == 'true' ? true : false;
+		else if( $wgVIKI_Second_Order_Links !== null )
+			$showSecondOrderLinks = $wgVIKI_Second_Order_Links;
+		else
+			$showSecondOrderLinks = false;
+
+		$pageTitles = array_map('trim', $pageTitles);
+		foreach($categories as $categoryName) {
+			$categoryObject = Category::newFromName($categoryName);
+			$categoryMembers = $categoryObject->getMembers();
+			foreach($categoryMembers->res as $row) {
+				$titleObject = Title::newFromID( $row->page_id );
+				if( $titleObject ) {
+					$titleText = $titleObject->getPrefixedText();
+					if( !in_array( $titleText, $pageTitles ) )
+						$pageTitles[] = $titleText;
+				}
+			}
+		}
+
+		$vikiJS = new VikiJS;
+		$output = $vikiJS->display( $parser, $pageTitles, $width, $height, $showSecondOrderLinks );
+		$parser->disableCache();
+		return array( $parser->insertStripItem( $output, $parser->mStripState ),
+			'noparse' => false );
+	}
+
+	static function vikiJS_parseParameters( $params ) {
+		$paramArray = array();
+		foreach ( $params as $param ) {
+			$ret = preg_split( '/=/', $param, 2 );
+			if ( count( $ret ) > 1 ) {
+				$paramArray[$ret[0]] = $ret[1];
+			}
+		}
+		return $paramArray;
+	}
+
+
 	/**
 	 * Adds a VIKI plugin ResourceLoader resource module to be loaded.
 	 *

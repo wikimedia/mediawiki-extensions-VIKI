@@ -1,0 +1,70 @@
+{
+	"name": "VIKI",
+	"version": "1.4",
+	"author": [
+		"[http://www.mediawiki.org/wiki/User:Jji Jason Ji]",
+		"[http://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]"
+	],
+	"url": "http://www.mediawiki.org/wiki/Extension:VIKI",
+	"descriptionmsg": "viki-desc",
+	"type": "parserhook",
+	"APIModules": {
+		"getContentNamespaces": "ApiGetContentNamespaces"
+	},
+	"MessagesDirs": {
+		"VIKI": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"VIKIMagic": "VIKI.i18n.magic.php"
+	},
+	"AutoloadClasses": {
+		"VikiJS": "VikiJS.class.php",
+		"ApiGetSiteLogo": "ApiGetSiteLogo.php",
+		"ApiGetContentNamespaces": "ApiGetContentNamespaces.php"
+	},
+	"ResourceModules": {
+		"ext.VIKI": {
+			"styles": [
+				"VIKI.css",
+				"vex.css",
+				"vex-theme-default.css"
+			],
+			"scripts": [
+				"d3.v3.js",
+				"vex.combined.min.js",
+				"spin.min.js",
+				"contextmenu.js",
+				"VIKI.js"
+			],
+			"dependencies": [
+				"mediawiki.jqueryMsg"
+			],
+			"messages": [
+				"viki-error-title",
+				"viki-error-missing-pageTitle",
+				"viki-timeout-content-namespace",
+				"viki-error-content-namespace",
+				"viki-error-visit-node",
+				"viki-error-external-links",
+				"viki-error-intrawiki-out",
+				"viki-error-intrawiki-in"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": "VIKI"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": [
+			"VikiJS::efVIKIParserFunction_Setup"
+		]
+	},
+	"config": {
+		"VIKI_Hidden_Categories" : [],
+		"VIKI_Second_Order_Links" : false,
+		"VIKI_Function_Hooks" : []
+	}
+}

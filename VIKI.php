@@ -24,14 +24,32 @@
 /**
 * To activate the functionality of this extension include the following
 * in your LocalSettings.php file:
+* MW 1.25+:
+* wfLoadExtension("VIKI");
 * $wgRegisterInternalExternals = true;
+*
+* MW 1.22 - 1.24:
 * include_once("$IP/extensions/VIKI/VIKI.php");
+* $wgRegisterInternalExternals = true;
 *
 * If $wgRegisterInternalExternals was not already true, you must run
 * refreshLinks.php after setting this flag.
 */
 
-define( 'VIKIJS_VERSION', '1.3' );
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'VIKI' );
+	// Keep i18n globals so mergeMessageFileList.php doesn't break
+	$wgMessagesDirs['VIKI'] = __DIR__ . "/i18n";
+	$wgExtensionMessagesFiles['VIKI'] = __DIR__ . '/VIKI.i18n.php';
+	$wgExtensionMessagesFiles['VIKIMagic'] = __DIR__ . '/VIKI.i18n.magic.php';
+	wfWarn(
+		'Deprecated PHP entry point used for VIKI extension. Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	);
+	return;
+}
+
+define( 'VIKIJS_VERSION', '1.4' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
@@ -96,68 +114,10 @@ $wgResourceModules['ext.VIKI'] = array(
 	)
 );
 
-$wgHooks['ParserFirstCallInit'][] = 'efVIKIParserFunction_Setup';
+$wgHooks['ParserFirstCallInit'][] = 'VikiJS::efVIKIParserFunction_Setup';
 
 $wgAPIModules['getContentNamespaces'] = 'ApiGetContentNamespaces';
 
 $wgAutoloadClasses['VikiJS'] = __DIR__ . '/VikiJS.class.php';
 $wgAutoloadClasses['ApiGetSiteLogo'] = __DIR__ . '/ApiGetSiteLogo.php';
 $wgAutoloadClasses['ApiGetContentNamespaces'] = __DIR__ . '/ApiGetContentNamespaces.php';
-
-function efVIKIParserFunction_Setup ( & $parser ) {
-	$parser->setFunctionHook( 'viki', 'viki' );
-	return true;
-}
-
-function viki( Parser $parser ) {
-	$myparams = func_get_args();
-	array_shift( $myparams );
-
-	$paramDictionary = vikiJS_parseParameters( $myparams );
-	global $wgVIKI_Second_Order_Links;
-
-	$width = isset( $paramDictionary['width'] ) ? (int) $paramDictionary['width'] : 1200;
-	$height = isset( $paramDictionary['height'] ) ? (int) $paramDictionary['height'] : 600;
-	$delimiter = isset( $paramDictionary['delimiter'] ) ? $paramDictionary['delimiter'] : ',';
-	$pageTitles = isset( $paramDictionary['pageTitles'] ) ? explode( $delimiter,
-			$paramDictionary['pageTitles'] ) : array( $parser->getTitle()->getText() );
-	$categories = isset( $paramDictionary['categories'] ) ? explode( $delimiter,
-			$paramDictionary['categories'] ) : array();
-	if( isset( $paramDictionary['secondOrderLinks'] ) )
-		$showSecondOrderLinks = $paramDictionary['secondOrderLinks'] == 'true' ? true : false;
-	else if( $wgVIKI_Second_Order_Links !== null )
-		$showSecondOrderLinks = $wgVIKI_Second_Order_Links;
-	else
-		$showSecondOrderLinks = false;
-
-	$pageTitles = array_map('trim', $pageTitles);
-	foreach($categories as $categoryName) {
-		$categoryObject = Category::newFromName($categoryName);
-		$categoryMembers = $categoryObject->getMembers();
-		foreach($categoryMembers->res as $row) {
-			$titleObject = Title::newFromID( $row->page_id );
-			if( $titleObject ) {
-				$titleText = $titleObject->getPrefixedText();
-				if( !in_array( $titleText, $pageTitles ) )
-					$pageTitles[] = $titleText;
-			}
-		}
-	}
-
-	$vikiJS = new VikiJS;
-	$output = $vikiJS->display( $parser, $pageTitles, $width, $height, $showSecondOrderLinks );
-	$parser->disableCache();
-	return array( $parser->insertStripItem( $output, $parser->mStripState ),
-		'noparse' => false );
-}
-
-function vikiJS_parseParameters( $params ) {
-	$paramArray = array();
-	foreach ( $params as $param ) {
-		$ret = preg_split( '/=/', $param, 2 );
-		if ( count( $ret ) > 1 ) {
-			$paramArray[$ret[0]] = $ret[1];
-		}
-	}
-	return $paramArray;
-}
