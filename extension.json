@@ -21,7 +21,6 @@
 	},
 	"AutoloadClasses": {
 		"VikiJS": "VikiJS.class.php",
-		"ApiGetSiteLogo": "ApiGetSiteLogo.php",
 		"ApiGetContentNamespaces": "ApiGetContentNamespaces.php"
 	},
 	"ResourceModules": {

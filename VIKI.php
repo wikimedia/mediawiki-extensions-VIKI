@@ -119,5 +119,4 @@ $wgHooks['ParserFirstCallInit'][] = 'VikiJS::efVIKIParserFunction_Setup';
 $wgAPIModules['getContentNamespaces'] = 'ApiGetContentNamespaces';
 
 $wgAutoloadClasses['VikiJS'] = __DIR__ . '/VikiJS.class.php';
-$wgAutoloadClasses['ApiGetSiteLogo'] = __DIR__ . '/ApiGetSiteLogo.php';
 $wgAutoloadClasses['ApiGetContentNamespaces'] = __DIR__ . '/ApiGetContentNamespaces.php';
