@@ -49,7 +49,7 @@ if ( function_exists( 'wfLoadExtension' ) ) {
 	return;
 }
 
-define( 'VIKIJS_VERSION', '1.4' );
+define( 'VIKIJS_VERSION', '1.5' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
@@ -110,7 +110,9 @@ $wgResourceModules['ext.VIKI'] = array(
 	'viki-error-visit-node',
 	'viki-error-external-links',
 	'viki-error-intrawiki-out',
-	'viki-error-intrawiki-in'
+	'viki-error-intrawiki-in',
+	'viki-error-https-node',
+	'viki-error-https-namespace'
 	)
 );
 

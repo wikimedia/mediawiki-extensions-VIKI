@@ -147,15 +147,18 @@ class VikiJS {
 		$subdetailsdiv = $div . "_details_data";
 		$errorsdiv = $div . "_errors";
 		$sliderdiv = $detailsdiv . "_zoom_slider";
-
+		$hamburger = $div . "_hamburger";
 		$output = <<<EOT
 <div id="$div">
 <table>
 <tr><td><div class="vikijs-graph-container" id="$graphdiv">
-<div id="$overlaydiv"></div></div></td></tr>
+<div class="vikijs-overlay" id="$overlaydiv"></div>
+</div></td></tr>
 <tr><td><div class="vikijs-detail-panel" id="$detailsdiv">
-<div class="vikijs-subdetail-panel" id="$subdetailsdiv"></div>
-<div class="vikijs-zoom-slider" id="$sliderdiv"></div>
+<table><tr><td>
+<div class="vikijs-subdetail-panel" id="$subdetailsdiv"></div></td>
+<td><div class="vikijs-zoom-slider" id="$sliderdiv"></div></td>
+<td><span class="vikijs-hamburger" id="$hamburger"></span></td></tr></table>
 </div></td></tr>
 <tr><td><div class="vikijs-errors-panel" id="$errorsdiv">
 </div></td></tr>
@@ -178,7 +181,7 @@ EOT;
 		$pageTitles_json = addslashes( json_encode( array_map( 'trim', $pageTitles ) ) );
 		$modules_json = addslashes( json_encode( self::$modules ) );
 		$divs_json = addslashes( json_encode( array( $graphdiv, $subdetailsdiv,
-			$sliderdiv, $errorsdiv ) ) );
+			$sliderdiv, $errorsdiv, $hamburger ) ) );
 		$parameters_json = addslashes( json_encode( array(
 															'width' => $width,
 															'height' => $height,

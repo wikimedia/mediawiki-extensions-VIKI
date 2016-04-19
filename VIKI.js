@@ -77,6 +77,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		this.SubDetailsDiv = null;
 		this.ErrorsDiv = null;
 		this.SliderDiv = null;
+		this.HamburgerSpan = null;
 		this.SelectedNodeIndex = null;
 		this.Nodes = [];
 		this.Links = [];
@@ -92,6 +93,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		this.myApiURL = this.serverURL + mw.config.get( "wgScriptPath" ) + "/api.php";
 		this.allWikis = [];
 		this.HiddenCategories = [];
+		this.NoCategoryNodesHidden = false;
 
 		this.ongoingElaborations = 0;
 		this.TempLinks = [];
@@ -99,6 +101,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		this.TempNodes = [];
 		this.OngoingElaborationNodes = [];
 		this.showSecondOrderLinks = false;
+		this.slideoverVisible = false;
+		this.allCategories = {};
 
 		var self = this;
 
@@ -132,6 +136,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			this.SubDetailsDiv = allDivs[ 1 ];
 			this.SliderDiv = allDivs[ 2 ];
 			this.ErrorsDiv = allDivs[ 3 ];
+			this.HamburgerSpan = allDivs[ 4 ];
+
 			this.ID = this.GraphDiv.match( new RegExp( "[0-9]", 'g' ) )[ 0 ];
 			this.INITIAL_WIDTH = allParameters.width;
 			this.INITIAL_HEIGHT = allParameters.height;
@@ -167,11 +173,10 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			// Show a placeholder that says "No Node Selected"
 			self.displayNoNodeSelected();
 
-			// Set up the slider div.
+			// Set up the slider, error divs and slideover menu.
 			self.initializeSliderDiv();
-
-			// Set up the error div.
 			self.initializeErrorDiv();
+			self.initializeSlideover();
 
 			// Set up the loading spinner
 			self.initializeLoadingSpinner();
@@ -189,9 +194,6 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			var calledGetAllWikisHook = this.callHooks( "GetAllWikisHook", [] );
 			if ( !calledGetAllWikisHook )
 				self.hookCompletion( "GetAllWikisHook" );
-
-			// Initialization functions
-
 		};
 
 		/**
@@ -206,7 +208,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			$( "#" + self.SubDetailsDiv )
 				.width( ( self.width - margin ) * 3 / 5 );
 			$( "#" + self.SliderDiv )
-				.width( ( self.width - margin ) * 2 / 5 );
+				.width( ( ( self.width - margin ) * 2 / 5 ) - 8*margin );
 			$( ".vikijs-detail-panel" )
 				.width( self.width - margin );
 			// create a new zoom slider
@@ -237,6 +239,37 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				.append( "<p><strong>" + mw.message( 'viki-error-title' )
 					.text() + "</strong></p>" );
 		};
+
+		/**
+		 * Initialize the hamburger button.
+		 *
+		 * This method is called internally by initialize().
+		 *
+		 */
+		my.VikiJS.prototype.initializeSlideover = function() {
+			var menuHtml = '\
+			<div class="menu-container" id="nav-'+ self.ID +'">\
+				<ul class="slide-menu" id="menu-'+ self.ID +'">\
+					<li class="nav-item"><a href="#">Home</a></li>\
+					<li class="nav-item"><a href="#">Portfolio</a></li>\
+					<li class="nav-item"><a href="#">About</a></li>\
+					<li class="nav-item"><a href="#">Blog</a></li>\
+					<li class="nav-item"><a href="#">Contact</a></li>\
+				</ul>\
+			</div>';
+			$( "#" + self.GraphDiv ).append(menuHtml);
+			$( "#menu-" + self.ID ).css( "height", self.INITIAL_HEIGHT );
+			$( "#nav-" + self.ID ).css( "height", self.INITIAL_HEIGHT );
+			$( "#nav-" + self.ID ).css( "pointer-events", "none" );
+			$( "#" + self.HamburgerSpan ).html("&equiv;");
+			$( "#" + self.HamburgerSpan ).on( "click", function() {
+				if(self.slideoverVisible)
+					self.hideSlideover();
+				else
+					self.showSlideover();
+				self.slideoverVisible = !self.slideoverVisible;
+			});
+		}
 
 		/**
 		 * Initialize the loading spinner.
@@ -284,24 +317,33 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			self.loadingView = vex.open( {
 				content: loadingContent,
 				css: {
-					"position": "absolute",
-					"top" : "auto",
-					"left" : "auto",
-					"right" : "auto",
-					"bottom" : "auto",
-					"height" : self.INITIAL_HEIGHT+"px",
-					"width" : self.INITIAL_WIDTH+"px"
+					position: "absolute",
+					top: "auto",
+					left: "auto",
+					right: "auto",
+					bottom: "auto",
+					overflow: "hidden",
+					"padding-top":0,
+					"padding-bottom":0,
+					height: self.INITIAL_HEIGHT+"px",
+					width: self.INITIAL_WIDTH+"px",
 				},
 				contentCSS: {
-					width: '150px'
+					width: '150px',
+					margin: '0',
+  					left: '50%',
+  					top: '50%',
+  					transform: 'translate(-50%,-50%)'
 				},
-				appendLocation: '#VIKI_'+self.ID+'_overlay',
+				appendLocation: '#VIKI_'+ self.ID +'_overlay',
 				afterOpen: function( $vexContent ) {
 					$vexContent.append( loadingStyle );
 					new Spinner( opts )
 						.spin( document.getElementById( 'spinnerDiv' ) );
 				},
-				showCloseButton: false
+				showCloseButton: false,
+				overlayClosesOnClick: false,
+				escapeButtonCloses: false
 			} );
 		};
 
@@ -637,6 +679,14 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			var wikiTitle = wiki.wikiTitle;
 
 			var sameServer = wiki.contentURL.indexOf( self.serverURL ) > -1;
+			if(document.location.protocol == 'https:' && wiki.contentURL.substring(0, wiki.contentURL.indexOf(':')) == 'http') {
+				self.showError( mw.message( 'viki-error-https-namespace', wikiTitle ) );
+				self.contentNamespacesFetched++;
+				if ( self.contentNamespacesFetched === self.searchableCount ) {
+					self.populateInitialGraph();
+				}
+				return;
+			}
 			jQuery.ajax( {
 				url: wiki.apiURL,
 				dataType: sameServer ? 'json' : 'jsonp',
@@ -1089,8 +1139,13 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						freeze.toggle = node.fix ? "Unfreeze" : "Freeze";
 
 						// set the title of the menu to the name
+						var safeDisplayName = node.displayName.replace(/&/g, '&amp;')
+																 .replace(/</g, '&lt;')
+																 .replace(/>/g, '&gt;')
+																 .replace(/"/g, '&quot;')
+																 .replace(/\'/g, '&#039;');
 						$( '#viki_name-' + self.ID )
-							.html( node.displayName );
+							.html( safeDisplayName );
 						// toggle the menu option between freeze and unfreeze
 						$( '.viki_freeze-' + self.ID )
 							.html( node.fix ? 'Unfreeze' : 'Freeze' );
@@ -1164,12 +1219,12 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						'categories': function( t ) {
 							var node = d3.select( t )
 								.datum();
-							self.showCategories( node.categories, false );
+							self.showCategoriesModal( node.categories, false );
 						},
 						'hideByCategory': function( t ) {
 							var node = d3.select( t )
 								.datum();
-							self.showCategories( node.categories, true );
+							self.showCategoriesModal( node.categories, true );
 						},
 						'hideIncoming': function( t ) {
 							var node = d3.select( t )
@@ -1428,6 +1483,10 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							// the category title is of the form "Category:Foo" so must remove the "Category:" part
 							categoryTitle = categoryTitle.replace( "Category:", "" );
 							originNode.categories.push( categoryTitle );
+
+							if( !self.allCategories.hasOwnProperty( categoryTitle ) ) {
+								self.allCategories[categoryTitle] = false;
+							}
 						}
 					}
 
@@ -1449,12 +1508,12 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @param {Array} categories List of categories to display.
 		 * @param {boolean} hideByCategory Whether to display checkboxes to allow nodes to be hidden.
 		 */
-		my.VikiJS.prototype.showCategories = function( categories, hideByCategory ) {
+		my.VikiJS.prototype.showCategoriesModal = function( categories, hideByCategory ) {
 			var self = this;
 			var categoriesHTML;
 			if ( hideByCategory ) { // Hide By Category
 				categoriesHTML = "\
-				<div id='categoryDiv'>\
+				<div id='categoryDiv-'"+ self.ID +">\
 					<fieldset>\
 						<legend>Categories</legend>\
 						<table id='categoryContainer'>\
@@ -1462,7 +1521,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					";
 
 				for ( var i = 0; i < categories.length; i++ ) {
-					categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + categories[ i ] + "' name='" + categories[ i ] + "' value=false><label for='" + categories[ i ] + "'>" + categories[ i ] + "</label></td></tr>";
+					categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + categories[ i ] + "-"+self.ID+ "' name='" + categories[ i ] + "' value=false><label for='" + categories[ i ] + "-"+self.ID+ "'>" + categories[ i ] + "</label></td></tr>";
 				}
 
 				categoriesHTML += "</tbody></table></fieldset></div>";
@@ -1473,20 +1532,27 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					message: "Select categories to hide:",
 					input: categoriesHTML,
 					css: {
-						"position": "absolute",
-						"top" : "auto",
-						"left" : "auto",
-						"right" : "auto",
-						"bottom" : "auto",
-						"height" : self.INITIAL_HEIGHT+"px",
-						"width" : self.INITIAL_WIDTH+"px"
+						position: "absolute",
+						top: "auto",
+						left: "auto",
+						right: "auto",
+						bottom: "auto",
+						overflow: "hidden",
+						"padding-top": 0,
+						"padding-bottom": 0,
+						height: self.INITIAL_HEIGHT+"px",
+						width: self.INITIAL_WIDTH+"px"
 					},
 					contentCSS: {
 						"min-width": '250px',
 						"width": "auto",
-						"display": "table"
+						"display": "table",
+						margin: '0',
+						left: '50%',
+						top: '50%',
+						transform: 'translate(-50%, -50%)'
 					},
-					appendLocation: '#VIKI_'+self.ID+'_overlay',
+					appendLocation: '#VIKI_'+ self.ID +'_overlay',
 					afterOpen: function() {
 						self.Force.stop();
 						$( ".categoryCheckbox" )
@@ -1508,7 +1574,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			} else { // Show Categories
 				categoriesHTML = "\
-				<div id='categoryDiv'>\
+				<div id='categoryDiv-'"+ self.ID +">\
 					<fieldset>\
 						<legend>Categories</legend>\
 						<ul id='categoryContainer'>\
@@ -1526,19 +1592,26 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				vex.open( {
 					content: categoriesHTML,
 					css: {
-						"position": "absolute",
-						"top" : "auto",
-						"left" : "auto",
-						"right" : "auto",
-						"bottom" : "auto",
-						"height" : self.INITIAL_HEIGHT+"px",
-						"width" : self.INITIAL_WIDTH+"px"
+						position: "absolute",
+						top : "auto",
+						left : "auto",
+						right : "auto",
+						bottom : "auto",
+						overflow : "hidden",
+						"padding-top":0,
+						"padding-bottom":0,
+						height : self.INITIAL_HEIGHT+"px",
+						width : self.INITIAL_WIDTH+"px"
 					},
-					appendLocation: '#VIKI_'+self.ID+'_overlay',
+					appendLocation: '#VIKI_'+ self.ID +'_overlay',
 					contentCSS: {
-						"min-width": '150px',
-						"width": "auto",
-						"display": "table"
+						"min-width" : '150px',
+						width : "auto",
+						display : "table",
+						margin : '0',
+						left : '50%',
+						top : '50%',
+						transform: 'translate(-50%, -50%)'
 					},
 					afterOpen: function() {
 						self.Force.stop();
@@ -1665,7 +1738,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				elaborated: false,
 				fixed: false,
 				hidden: false,
-				visited: false
+				visited: false,
+				explicitlyHidden: false,
+				hidingHub: false,
+				hidingIncoming: false,
+				hidingOutgoing: false
 			};
 			return node;
 		};
@@ -1902,6 +1979,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		my.VikiJS.prototype.elaborateWikiNode = function( node, completionHandler, elaborationType ) {
 			var self = this;
 
+			if(document.location.protocol == 'https:' && node.apiURL.substring(0, node.apiURL.indexOf(':')) == 'http') {
+				abandonElaboration();
+				return;
+			}
+
 			// 1. Get external links OUT from page.
 
 			var externalElaborationData, intraOutElaborationData, intraInElaborationData;
@@ -2031,7 +2113,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						if( self.showSecondOrderLinks ) {
 							self.ongoingElaborations--;
 							if( self.ongoingElaborations == 0 ) {
-								findSecondOrderLinks( );
+								// call findSecondOrderLinks() after a brief delay to avoid animation hiccups
+								setTimeout(findSecondOrderLinks, 400);
 							}
 							self.callHooks( "NodeElaborationCompleteHook", [ originNode ] );
 						}
@@ -2097,6 +2180,31 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						self.updateProgressOverlay( "Finding 2nd order links..."+ +(nodesChecked / totalCheckCount * 100).toPrecision(4) + "%", nodesChecked);
 						if( nodesChecked === totalCheckCount )
 							self.closeProgressOverlay( );
+					}
+				}
+			}
+
+			function abandonElaboration() {
+				self.showError( mw.message( 'viki-error-https-node', originNode.pageTitle ) );
+				if( completionHandler ) {
+					completionHandler( originNode );
+				}
+
+				if( elaborationType !== self.ELABORATION_TYPE_SECOND_ORDER_LINKS ) {
+					if( self.showSecondOrderLinks ) {
+						self.ongoingElaborations--;
+						if( self.ongoingElaborations == 0 ) {
+							// call findSecondOrderLinks() after a brief delay to avoid animation hiccups
+							setTimeout(findSecondOrderLinks, 400);
+						}
+						self.callHooks( "NodeElaborationCompleteHook", [ originNode ] );
+					}
+					else {
+						self.ongoingElaborations--;
+						self.log("self.ongoingElaborations = " + self.ongoingElaborations);
+						if(self.ongoingElaborations == 0) {
+							self.visitNodeBatch(self.OngoingElaborationNodes.filter( function( node ) { return node.apiURL !== null && node.apiURL !== undefined; } ) );
+						}
 					}
 				}
 			}
@@ -2175,7 +2283,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 								if(elaborationType === self.ELABORATION_TYPE_INITIAL_POPULATION)
 									link = context.addTempLink( originNode, externalWikiNode );
 								else
-									link = context.addLink( originNode, externalWikiNode, hasHiddenCeategory );
+									link = context.addLink( originNode, externalWikiNode, hasHiddenCategory );
 							}
 								
 							else {
@@ -2429,23 +2537,32 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			self.progressbarView = vex.open( {
 				content: secondOrderContent,
 				css: {
-					"position": "absolute",
-					"top" : "auto",
-					"left" : "auto",
-					"right" : "auto",
-					"bottom" : "auto",
-					"height" : self.INITIAL_HEIGHT+"px",
-					"width" : self.INITIAL_WIDTH+"px"
+					position: "absolute",
+					top: "auto",
+					left: "auto",
+					right: "auto",
+					bottom: "auto",
+					overflow: "hidden",
+					"padding-top": 0,
+					"padding-bottom": 0,
+					height: self.INITIAL_HEIGHT+"px",
+					width: self.INITIAL_WIDTH+"px"
 				},
 				contentCSS: {
-					width: '300px'
+					width: '300px',
+					margin: '0',
+					left: '50%',
+					top: '50%',
+					transform: 'translate(-50%, -50%)'
 				},
-				appendLocation: '#VIKI_'+self.ID+'_overlay',
+				appendLocation: '#VIKI_'+ self.ID +'_overlay',
 				afterOpen: function( $vexContent ) {
 					$vexContent.append( loadingStyle );
 					$('.progressbarDiv').progressbar({ max: maxValue, value: 0 });
 				},
-				showCloseButton: false
+				showCloseButton: false,
+				overlayClosesOnClick: false,
+				escapeButtonCloses: false
 			} );
 		}
 
@@ -2474,15 +2591,24 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 
 			vex.dialog.confirm({
 				css: {
-					"position": "absolute",
-					"top" : "auto",
-					"left" : "auto",
-					"right" : "auto",
-					"bottom" : "auto",
-					"height" : self.INITIAL_HEIGHT+"px",
-					"width" : self.INITIAL_WIDTH+"px"
+					position: "absolute",
+					top: "auto",
+					left: "auto",
+					right: "auto",
+					bottom: "auto",
+					overflow: "hidden",
+					"padding-top":0,
+					"padding-bottom":0,
+					height: self.INITIAL_HEIGHT+"px",
+					width: self.INITIAL_WIDTH+"px"
 				},
-				appendLocation: '#VIKI_'+self.ID+'_overlay',
+				contentCSS: {
+					margin: '0',
+					left: '50%',
+					top: '50%',
+					transform: 'translate(-50%, -50%)'
+				},
+				appendLocation: '#VIKI_'+ self.ID +'_overlay',
 				message: text,
 				callback: function(value) {
 					if( value )
@@ -2491,6 +2617,80 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 						if(noCompletion) noCompletion();
 				}
 			});
+		}
+
+		my.VikiJS.prototype.showSlideover = function() {
+			var html = '<div class="vex-overlay vikijs-overlay" style="height: '+self.INITIAL_HEIGHT+'px; width: '+self.INITIAL_WIDTH+'px;"></div>';
+			$('#VIKI_'+ self.ID +'_overlay').append(html);
+
+			var categoriesHTML = "\
+				<div class='slideover-categoryDiv' id='categoryDiv-'"+ self.ID +">\
+					<fieldset>\
+						<legend>Hide By Category:</legend>\
+						<table class='categoryContainer'>\
+							<tbody>\
+				";
+
+			Object.keys( self.allCategories ).forEach(function(category) {
+				categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + category + "-"+ self.ID + "' name='" + category + "' value=false><label for='" + category + "-"+ self.ID + "'>" + category + "</label></td></tr>";
+			});
+			categoriesHTML += "</tbody></table>";
+			categoriesHTML +="<table class='categoryContainer'><tbody>";
+			categoriesHTML += "<tr><td><input type='checkbox' class='noCategoryCheckbox' id='no-category-" + self.ID + "' value=false><label for='no-category-" + self.ID + "'><i>No Category</i></label></td></tr>";
+			categoriesHTML += "</tbody></table></fieldset></div>";
+				
+			$( "#menu-"+ self.ID ).html(categoriesHTML);
+			$( ".categoryCheckbox" )
+							.each( function() {
+								var checkbox = $( this );
+								checkbox.prop( 'checked', self.HiddenCategories.indexOf( checkbox.prop( 'name' ) ) != -1 );
+
+								checkbox.click( function() {
+									var value = checkbox.prop( 'checked' );
+									checkbox.prop( 'value', value );
+
+									if(value) {
+										// hide category
+										var category = checkbox.prop( 'name' );
+										self.hideByCategories( [ category ] );
+									}
+									else {
+										// unhide category
+										var category = checkbox.prop( 'name' );
+										self.unhideByCategories( [ category ] );
+									}
+								} );
+							} );
+
+			$( ".noCategoryCheckbox" ).each( function() {
+				var checkbox = $( this );
+				checkbox.prop( 'checked', self.NoCategoryNodesHidden );
+
+				checkbox.click( function() {
+					var value = checkbox.prop( 'checked' );
+					checkbox.prop( 'value', value );
+
+					if(value) {
+						self.hideByNoCategories();
+					}
+					else {
+						self.unhideByNoCategories();
+					}
+				} );
+			});
+
+			$('#VIKI_'+ self.ID +'_overlay > .vex-overlay').click(function() { 
+				self.slideoverVisible = !self.slideoverVisible;
+				self.hideSlideover(); 
+			});
+			$( "#nav-" + self.ID ).css( "pointer-events", "auto" );
+			$( "#menu-"+ self.ID ).css("transform", "translate3d(0, 0, 0)");
+		}
+
+		my.VikiJS.prototype.hideSlideover = function() {
+			$('#VIKI_'+ self.ID +'_overlay > .vex-overlay').fadeOut(400, function(){ $(this).remove(); });
+			$( "#nav-" + self.ID ).css( "pointer-events", "none" );
+			$( "#menu-"+ self.ID ).css("transform", "translate3d(200px, 0, 0)");
 		}
 
 		/**
@@ -2544,6 +2744,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @param {Object} node node to hide from the graph
 		 */
 		my.VikiJS.prototype.hideNodeAndRedraw = function( node ) {
+			node.explicitlyHidden = true;
 			self.hideNode( node, true );
 			self.log("redraw() - from hideNodeAndRedraw");
 			self.redraw( true );
@@ -2561,6 +2762,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			if ( !node.elaborated )
 				return;
 
+			node.hidingHub = true;
 			self.hideCluster( node, self.HIDE_HUB );
 		};
 
@@ -2579,7 +2781,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 			// hideCluster is the same call for hideHub, hideIncomingLinks and hideOutgoingLinks.
 			// We iterate links to check all nodes participating in those links which are connected to the passed-in node.
 			// If hideHub was the caller, identify all nodes connected to this node which aren't connected to any others (i.e. leaf nodes).
-			// If hideIncomingLinks or hideOutgoingLInks was the caller, just identify all connected nodes.
+			// If hideIncomingLinks or hideOutgoingLinks was the caller, just identify all connected nodes.
 
 			var i;
 
@@ -2628,8 +2830,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @param {Object} node node whose incoming links are to be hidden.
 		 */
 		my.VikiJS.prototype.hideIncomingLinks = function( node ) {
-			self.hideCluster( node, self.HIDE_INCOMING );
 			node.hidingIncoming = true;
+			self.hideCluster( node, self.HIDE_INCOMING );
 		};
 
 		/**
@@ -2640,8 +2842,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 * @param {Object} node node whose outgoing links are to be hidden.
 		 */
 		my.VikiJS.prototype.hideOutgoingLinks = function( node ) {
-			self.hideCluster( node, self.HIDE_OUTGOING );
 			node.hidingOutgoing = true;
+			self.hideCluster( node, self.HIDE_OUTGOING );
 		};
 
 		/**
@@ -2658,20 +2860,36 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					return node.categories ? node.categories.indexOf( category ) !== -1 : false;
 				} );
 
+				self.HiddenCategories.push(category);
 				nodesInThisCategory.forEach( function( node ) {
 					self.hideNode( node, true );
 				} );
-				self.HiddenCategories.push(category);
 			} );
 
 			self.log("redraw() - from hideByCategories");
 			self.redraw( true );
 		};
 
+		my.VikiJS.prototype.hideByNoCategories = function() {
+			var noCategoryNodes = self.Nodes.filter( function( node ) {
+				return !node.categories || node.categories.length == 0;
+			} );
+
+			noCategoryNodes.forEach( function( node ) {
+				self.hideNode( node, true );
+			} )
+
+			self.NoCategoryNodesHidden = true;
+
+			self.log("redraw() - from hideByNoCategories");
+			self.redraw( true );
+		}
+
 		/**
 		 * Unhide node from the graph.
 		 *
-		 * This method is called internally when the user elects to show all nodes.
+		 * This method is called internally when a new elaboration occurs, and this
+		 * previously hidden node is connected to a new node and should be un-hidden.
 		 *
 		 * @param {number} identifier identifier for the node to be unhidden
 		 */
@@ -2696,9 +2914,96 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		};
 
 		/**
+		 * Unhide nodes in the given categories.
+		 *
+		 * This method is called when the user elects to unhide a category.
+		 *
+		 * @param {categories} list of categories to unhide
+		 */
+		my.VikiJS.prototype.unhideByCategories = function( categories ) {
+			categories.forEach(function(category) {
+				var nodesInThisCategory = self.HiddenNodes.filter( function( node ) {
+					return node.categories ? node.categories.indexOf( category ) !== -1 : false;
+				} );
+
+				// Remove category from HiddenCategories.
+				self.HiddenCategories.splice( self.HiddenCategories.indexOf( category ), 1 );
+
+				self.unhideNodesIfValid( nodesInThisCategory );
+			});
+		}
+
+		/**
+		* Unhide nodes which have no categories.
+		*
+		* This method is called when the user elects to unhide nodes which aren't in a category.
+		*/
+		my.VikiJS.prototype.unhideByNoCategories = function() {
+
+			var noCategoryNodes = self.HiddenNodes.filter( function( node ) {
+				return !node.categories || node.categories.length == 0;
+			} );
+
+			self.NoCategoryNodesHidden = false;
+			self.unhideNodesIfValid( noCategoryNodes );
+		}
+
+		/**
+		 * Generic method for unhiding a set of nodes IF all hidden conditions are clear. 
+		 * Unhides these nodes and their corresponding links, except links to other nodes 
+		 * that are still hidden.
+		 * 
+		 * This method is called internally when a group of nodes should be unhidden,
+		 * such as unhiding a category.
+		 */
+		my.VikiJS.prototype.unhideNodesIfValid = function( nodes ) {
+			var self = this;
+			// 0. Filter list to nodes that have all hidden conditions clear.
+			var nodesToUnhide = nodes.filter( function( node ) { return !self.nodeShouldBeHidden( node ); });
+			self.log("nodes to unhide:");
+			self.log(nodesToUnhide);
+
+			// 1. Add these hidden nodes back into main Nodes array.
+			nodesToUnhide.forEach( function ( node ) {
+				self.HiddenNodes.splice( self.HiddenNodes.indexOf( node ), 1 );
+				self.Nodes.push( node );
+				node.index = self.Nodes.length - 1;
+				node.hidden = false;
+			});
+
+			// 2. Find the hidden links that correspond to these nodesToUnhide.
+			var theseHiddenLinks = self.HiddenLinks.filter( function( link ) {
+				var associated = false;
+				nodesToUnhide.forEach(function( node ) {
+					if( link.source.identifier === node.identifier || link.target.identifier === node.identifier )
+						associated = true;
+				});
+				return associated;
+			});
+
+			// 3. Add their corresponding hidden links back into main Links array and LinkMap, but not if
+			// the other end of a link is still a hidden node.
+			theseHiddenLinks.forEach( function( link, index, array ) {
+				// TODO: possibly need to check for alreadyFound, duplicate vs bidirectional, etc?
+				// Reference code from addHiddenLinksToGraph()
+
+				// If either the source or target of this link is still hidden, keep it hidden
+				if( link.source.hidden || link.target.hidden ) {
+					return;
+				}
+				self.Links.push( link );
+				self.LinkMap[ link.source.identifier + "," + link.target.identifier ] = link;
+				self.LinkMap[ link.target.identifier + "," + link.source.identifier ] = link;
+				self.HiddenLinks.splice( self.HiddenLinks.indexOf( link ), 1 );
+			});
+
+			self.redraw( true );
+		}
+
+		/**
 		 * Show all nodes in the graph, re-adding any hidden nodes.
 		 *
-		 * This method is called the user elects to show all nodes in the graph.
+		 * This method is called when the user elects to show all nodes in the graph.
 		 *
 		 */
 		my.VikiJS.prototype.showAllNodes = function() {
@@ -2741,8 +3046,8 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		 my.VikiJS.prototype.nodeHasHiddenCategory = function( node ) {
 		 	if( node.type === self.EXTERNAL_PAGE_TYPE )
 		 		return false;
-		 	if( !node.categories )
-		 		return false;
+		 	if( !node.categories || node.categories.length == 0 )
+		 		return self.NoCategoryNodesHidden;
 
 			for(var i = 0; i < self.HiddenCategories.length; i++) {
 				var STOP = false;
@@ -2753,6 +3058,95 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				}
 			}
 			return false;
+		 }
+
+		/**
+		 * Determine if a node is hidden because it is an incoming link to another node
+		 * which has "hide incoming links" active.
+		 *
+		 * @param {node} node object to check
+		 *
+		 * @return {isHiddenIncomingLink} true if the node is an incoming link to another
+		 * "hide incoming links" node, otherwise false
+		 */
+		 my.VikiJS.prototype.nodeIsHiddenIncomingLink = function( node ) {
+		 	var self = this;
+		 	// Check this node's *outgoing* nodes - if any of them has "hideIncoming" true,
+		 	// then this node is being hidden because it is an incoming link to that node.
+		 	var outgoingNodes = self.allOutgoingNodes( node );
+		 	var isHiddenIncoming = false;
+		 	outgoingNodes.forEach( function( outgoingNode ) {
+		 		if( outgoingNode.hidingIncoming ) {
+		 			isHiddenIncoming = true;
+		 		}
+		 	});
+		 	return isHiddenIncoming;
+		 }
+
+		/**
+		 * Determine if a node is hidden because it is an outgoing link from another node
+		 * which has "hide outgoing links" active.
+		 *
+		 * @param {node} node object to check
+		 *
+		 * @return {isHiddenIncomingLink} true if the node is an outgoing link from another
+		 * "hide outgoing links" node, otherwise false
+		 */
+		 my.VikiJS.prototype.nodeIsHiddenOutgoingLink = function( node ) {
+		 	var self = this;
+		 	// Check this node's *incoming* nodes - if any of them has "hideOutgoing" true,
+		 	// then this node is being hidden because it is an outgoing link from that node.
+		 	var incomingNodes = self.allIncomingNodes( node );
+		 	var isHiddenOutgoing = false;
+		 	incomingNodes.forEach( function( incomingNode ) {
+		 		if( incomingNode.hidingOutgoing ) {
+		 			isHiddenOutgoing = true;
+		 		}
+		 	});
+		 	return isHiddenOutgoing;
+		 }
+
+		/**
+		 * Determine if a node is hidden because it is part of a hidden hub.
+		 *
+		 * @param {node} node object to check
+		 *
+		 * @return {isPartOfHiddenHub} true if the node is part of a hidden hub.
+		 */
+		 my.VikiJS.prototype.nodeIsPartOfHiddenHub = function( node ) {
+		 	var self = this;
+		 	// This node can only be part of a hidden hub if it has only 1 connection.
+		 	if( self.numberOfConnections( node ) > 1 )
+		 		return false;
+
+		 	var allRelatedNodes = self.allIncomingNodes( node ).concat( self.allOutgoingNodes( node ) ).concat( self.allBidirectionalNodes( node ) );
+		 	var isPartOfHiddenHub = false;
+		 	allRelatedNodes.forEach(function ( node ) {
+		 		if( node.hidingHub )
+		 			isPartOfHiddenHub = true;
+		 	});
+		 	return isPartOfHiddenHub;
+		 }
+
+		/**
+		 * Determine if a node should be hidden based on multiple factors.
+		 * Currently these include: hidden category, explicitly hidden, 
+		 * hidden hub, is incoming or outgoing link.
+		 *
+		 * @param {node} node object to check hidden status
+		 *
+		 * @return {shouldBeHidden} true if node sould be hidden, false if not
+		 */
+		 my.VikiJS.prototype.nodeShouldBeHidden = function( node ) {
+		 	var self = this;
+		 	var hiddenBecauseCategory = self.nodeHasHiddenCategory( node );
+		 	var hiddenBecauseExplicitlyHidden = node.explicitlyHidden;
+		 	var hiddenBecauseHubHidden = self.nodeIsPartOfHiddenHub( node );
+		 	var hiddenBecauseIsAnIncomingLink = self.nodeIsHiddenIncomingLink( node );
+		 	var hiddenBecauseIsAnOutgoingLink = self.nodeIsHiddenOutgoingLink( node );
+
+		 	return hiddenBecauseCategory || hiddenBecauseExplicitlyHidden || 
+		 	    hiddenBecauseHubHidden || hiddenBecauseIsAnIncomingLink || hiddenBecauseIsAnOutgoingLink;
 		 }
 
 		/**
@@ -2826,6 +3220,66 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		};
 
 		/*
+		 * Get a list of all incoming nodes to this node, currently hidden or not. Excludes bidirectional.
+		 *
+		 * @param {Object} node node to be examined
+		 *
+		 * @return {nodes} all incoming nodes
+		 */		
+		my.VikiJS.prototype.allIncomingNodes = function( node ) {
+			var self = this;
+			var allLinks = self.Links.concat(self.HiddenLinks);
+			var allIncomingNodes = [];
+
+			allLinks.forEach(function(link) {
+				if(link.target.identifier === node.identifier && link.source.identifier !== node.identifier )
+					allIncomingNodes.push(link.source);
+			});
+
+			return allIncomingNodes;
+		}
+
+		/*
+		 * Get a list of all outgoing nodes from this node, currently hidden or not. Excludes bidirectional.
+		 *
+		 * @param {Object} node node to be examined
+		 *
+		 * @return {nodes} all outgoing nodes
+		 */		
+		my.VikiJS.prototype.allOutgoingNodes = function( node ) {
+			var self = this;
+			var allLinks = self.Links.concat(self.HiddenLinks);
+			var allOutgoingNodes = [];
+
+			allLinks.forEach(function(link) {
+				if(link.source.identifier === node.identifier && link.target.identifier !== node.identifier )
+					allOutgoingNodes.push(link.target);
+			});
+
+			return allOutgoingNodes;
+		}
+
+		/*
+		 * Get a list of all nodes with a bidirectional relationship to this node.
+		 *
+		 * @param {Object} node node to be examined
+		 *
+		 * @return {nodes} all bidirectionally-related nodes
+		 */		
+		my.VikiJS.prototype.allBidirectionalNodes = function( node ) {
+			var self = this;
+			var allLinks = self.Links.concat(self.HiddenLinks);
+			var allBidirectionalNodes = [];
+
+			allLinks.forEach(function(link) {
+				if(link.source.identifier === node.identifier && link.target.identifier === node.identifier )
+					allBidirectionalNodes.push(link.source);
+			});
+
+			return allBidirectionalNodes;	
+		}
+
+		/*
 		 * Log statement to the console.
 		 *
 		 * This helper method is called internally as a replacement for console.log, because
@@ -2851,8 +3305,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 		my.VikiJS.prototype.showError = function( errorText ) {
 			$( "#" + self.ErrorsDiv )
 				.css( "visibility", "visible" );
-			$( "#" + self.ErrorsDiv )
-				.append( "<p>" + errorText + "</p>" );
+			var text = $( "#" + self.ErrorsDiv ).text();
+			if( text.indexOf( errorText ) == -1 ) {
+				$( "#" + self.ErrorsDiv )
+					.append( "<p>" + errorText + "</p>" );
+			}
 		};
 
 		/*

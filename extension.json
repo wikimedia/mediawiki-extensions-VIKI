@@ -1,6 +1,6 @@
 {
 	"name": "VIKI",
-	"version": "1.4",
+	"version": "1.5",
 	"author": [
 		"[http://www.mediawiki.org/wiki/User:Jji Jason Ji]",
 		"[http://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]"
@@ -48,7 +48,9 @@
 				"viki-error-visit-node",
 				"viki-error-external-links",
 				"viki-error-intrawiki-out",
-				"viki-error-intrawiki-in"
+				"viki-error-intrawiki-in",
+				"viki-error-https-node",
+				"viki-error-https-namespace"
 			]
 		}
 	},
