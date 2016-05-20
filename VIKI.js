@@ -1521,7 +1521,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 					";
 
 				for ( var i = 0; i < categories.length; i++ ) {
-					categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + categories[ i ] + "-"+self.ID+ "' name='" + categories[ i ] + "' value=false><label for='" + categories[ i ] + "-"+self.ID+ "'>" + categories[ i ] + "</label></td></tr>";
+					categoriesHTML += "<tr><td><input type='checkbox' id='" + categories[ i ] + "-"+self.ID+ "' name='" + categories[ i ] + "' value=false><label for='" + categories[ i ] + "-"+self.ID+ "'>" + categories[ i ] + "</label></td></tr>";
 				}
 
 				categoriesHTML += "</tbody></table></fieldset></div>";
@@ -2632,11 +2632,11 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 				";
 
 			Object.keys( self.allCategories ).forEach(function(category) {
-				categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + category + "-"+ self.ID + "' name='" + category + "' value=false><label for='" + category + "-"+ self.ID + "'>" + category + "</label></td></tr>";
+				categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + category + "-"+ self.ID + "' name='" + category + "' value=false><label class='categoryCheckboxLabel' for='" + category + "-"+ self.ID + "'>" + category + "</label></td></tr>";
 			});
 			categoriesHTML += "</tbody></table>";
 			categoriesHTML +="<table class='categoryContainer'><tbody>";
-			categoriesHTML += "<tr><td><input type='checkbox' class='noCategoryCheckbox' id='no-category-" + self.ID + "' value=false><label for='no-category-" + self.ID + "'><i>No Category</i></label></td></tr>";
+			categoriesHTML += "<tr><td><input type='checkbox' class='noCategoryCheckbox' id='no-category-" + self.ID + "' value=false><label class='categoryCheckboxLabel' for='no-category-" + self.ID + "'><i>No Category</i></label></td></tr>";
 			categoriesHTML += "</tbody></table></fieldset></div>";
 				
 			$( "#menu-"+ self.ID ).html(categoriesHTML);

@@ -1,41 +1,51 @@
 /*********************/
 /* Slide Menu        */
 .slide-menu {
-    list-style: none;
-    background: #EEEEEE;
-    position: absolute;
-    top:auto;
-    left:auto;
-    right:auto;
-    bottom:auto;
-    width: 200px;
-    margin: 0 0 0 0 !important;
-	transform: translate3d(200px, 0, 0);
-	transition: all .2s;
+  list-style: none;
+  background: #EEEEEE;
+  position: absolute;
+  top:auto;
+  left:auto;
+  right:auto;
+  bottom:auto;
+  width: 200px;
+  margin: 0 0 0 0 !important;
+  transform: translate3d(200px, 0, 0);
+  transition: all .2s;
 }
 
 .slideover-categoryDiv {
-	padding-left: 5px;
-	padding-right: 5px;
+  text-align: left;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.categoryCheckbox, .noCategoryCheckbox {
+  float: left;
+}
+
+.categoryCheckboxLabel {
+  margin-left: 25px;
+  display: block;
 }
 
 .menu-container {
 	position: absolute;
-    top:auto;
-    left:auto;
-    right:0;
-    bottom:auto;
-    width: 200px;
-    margin: 0 0 0 0 !important;
-	overflow-x:hidden;
+  top:auto;
+  left:auto;
+  right:0;
+  bottom:auto;
+  width: 200px;
+  margin: 0 0 0 0 !important;
+  overflow-x:hidden;
 }
 
 .vikijs-overlay {
 	position: absolute !important;
-    top:auto !important;
-    left:auto !important;
-    right:auto !important;
-    bottom:auto !important;
+  top:auto !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
 }
 .vex-overlay.vikijs-overlay {
 	background: rgba(0,0,0,0.5);
@@ -46,7 +56,7 @@
 /* Animations		 */
 
 @keyframes spinner-flyin {
-/* manually adjust for final -50% transform */
+  /* manually adjust for final -50% transform */
   0% {
     opacity: 0;
     transform: translate(-50%, -80%);
@@ -66,7 +76,7 @@
   }
 }
 @keyframes spinner-flyout {
-/* manually adjust for final -50% transform */
+  /* manually adjust for final -50% transform */
   0% {
     opacity: 1;
     transform: translate(-50%, -50%);
@@ -125,6 +135,7 @@
 .vikijs-subdetail-panel > h4 {
 	margin: 0 0 0 0;
 	padding: 10px 0px 10px 0px;
+  text-align: left;
 }
 
 .vikijs-detail-panel {
@@ -151,7 +162,7 @@
 }
 
 .vikijs-zoom-slider {
-float:right;
+  float:right;
 /*
  * adjust the slider up 23px
  * for some reason the slider was automatically positioned
@@ -175,6 +186,7 @@ margin-right:10px;*/
 
 .categoryContainer {
 	font-size: .85em;
+  width: 100%;
 }
 
 body.vex-open {
