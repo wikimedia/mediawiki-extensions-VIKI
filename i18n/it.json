@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Beta16"
+			"Beta16",
+			"Matteocng"
 		]
 	},
-	"viki-error-title": "Errore:"
+	"viki-error-title": "Errore:",
+	"viki-error-https-node": "Errore di elaborazione del nodo: $1. Tu stai usando HTTPS; è possibile accedere solo alle altre wiki con HTTPS."
 }
