@@ -49,7 +49,7 @@ if ( function_exists( 'wfLoadExtension' ) ) {
 	return;
 }
 
-define( 'VIKIJS_VERSION', '1.5.1' );
+define( 'VIKIJS_VERSION', '1.5.2' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );

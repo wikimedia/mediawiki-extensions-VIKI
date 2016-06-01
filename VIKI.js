@@ -2631,7 +2631,7 @@ window.VIKI = ( function( mw, $, vex, Spinner, d3, my ) {
 							<tbody>\
 				";
 
-			Object.keys( self.allCategories ).forEach(function(category) {
+			Object.keys( self.allCategories ).sort().forEach(function(category) {
 				categoriesHTML += "<tr><td><input type='checkbox' class='categoryCheckbox' id='" + category + "-"+ self.ID + "' name='" + category + "' value=false><label class='categoryCheckboxLabel' for='" + category + "-"+ self.ID + "'>" + category + "</label></td></tr>";
 			});
 			categoriesHTML += "</tbody></table>";
