@@ -6,5 +6,6 @@
 		]
 	},
 	"viki-error-title": "Errore:",
-	"viki-error-https-node": "Errore di elaborazione del nodo: $1. Tu stai usando HTTPS; è possibile accedere solo alle altre wiki con HTTPS."
+	"viki-error-https-node": "Errore di elaborazione del nodo: $1. Tu stai usando HTTPS; è possibile accedere alle altre wiki solo con HTTPS.",
+	"viki-error-https-namespace": "Errore di recupero del namespace del contenuto per il wiki: $1. Tu stai usando HTTPS; è possibile accedere alle altre wiki solo con HTTPS."
 }
