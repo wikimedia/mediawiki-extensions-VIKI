@@ -17,5 +17,5 @@
 	"viki-error-external-links": "Error message for a failure to fetch external links for a page",
 	"viki-error-intrawiki-out": "Error message for a failure to fetch intra-wiki links, that is ones that go from a wiki page to other pages in the same wiki.",
 	"viki-error-intrawiki-in": "Error message for a failure to fetch intra-wiki links to a page, that is links from other pages in this wiki to the page $1 in this wiki.",
-	"apihelp-getContentNamespaces-description" : "{{doc-apihelp-description|getContentNamespaces}}"
+	"apihelp-getContentNamespaces-description": "{{doc-apihelp-description|getContentNamespaces}}"
 }
