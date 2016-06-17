@@ -26,8 +26,7 @@ class ApiGetContentNamespaces extends ApiBase {
 		parent::__construct( $main, $action );
 	}
 	public function execute() {
-		global $wgContentNamespaces;
-		$this->getResult()->addValue( null, $this->getModuleName(), $wgContentNamespaces );
+		$this->getResult()->addValue( null, $this->getModuleName(), MWNamespace::getContentNamespaces() );
 
 		return true;
 	}
