@@ -12,5 +12,8 @@
 	"viki-error-visit-node": "Error al intentar visitar la páxina: $1.",
 	"viki-error-external-links": "Error al traer los enllaces esternos de la páxina: $1.",
 	"viki-error-intrawiki-out": "Error al traer los enllaces de salida interwiki pa la páxina: $1.",
-	"viki-error-intrawiki-in": "Error al traer los enllaces de vuelta interwiki de la páxina: $1."
+	"viki-error-intrawiki-in": "Error al traer los enllaces de vuelta interwiki de la páxina: $1.",
+	"viki-error-https-node": "Error al ellaborar el nodu: $1. Tas trabayando sobre HTTPS; sólo tienes accesu a otres wikis per HTTPS.",
+	"viki-error-https-namespace": "Error al algamar l'espaciu de nomes de conteníu de la wiki: $1. Tas trabayando sobre HTTPS, sólo tienes accesu a otres wikis per HTTPS.",
+	"apihelp-getContentNamespaces-description": "Llograr la llista de los espacios de nomes de conteníu pa esta wiki."
 }
