@@ -72,11 +72,11 @@ if ( version_compare( SMW_VERSION, '1.9', '<' ) ) {
 $wgExtensionCredits['parserhook'][] = array (
 	'name' => 'VIKI',
 	'version' => VIKIJS_VERSION,
-	'author' => array('[http://www.mediawiki.org/wiki/User:Jji Jason Ji]',
-						'[http://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]'),
+	'author' => array('[https://www.mediawiki.org/wiki/User:Jji Jason Ji]',
+						'[https://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]'),
 	'descriptionmsg' => 'viki-desc',
 	'path' => __FILE__,
-	'url' => 'http://www.mediawiki.org/wiki/Extension:VIKI'
+	'url' => 'https://www.mediawiki.org/wiki/Extension:VIKI'
 );
 
 $wgExtensionMessagesFiles['VIKIMagic'] =
