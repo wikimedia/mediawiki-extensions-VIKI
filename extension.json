@@ -2,10 +2,10 @@
 	"name": "VIKI",
 	"version": "1.5.2",
 	"author": [
-		"[http://www.mediawiki.org/wiki/User:Jji Jason Ji]",
-		"[http://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]"
+		"[https://www.mediawiki.org/wiki/User:Jji Jason Ji]",
+		"[https://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]"
 	],
-	"url": "http://www.mediawiki.org/wiki/Extension:VIKI",
+	"url": "https://www.mediawiki.org/wiki/Extension:VIKI",
 	"descriptionmsg": "viki-desc",
 	"type": "parserhook",
 	"APIModules": {
