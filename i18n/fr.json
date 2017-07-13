@@ -17,5 +17,6 @@
 	"viki-error-intrawiki-in": "Erreur lors de l'accès aux liens arrière intrawiki de la page: $1.",
 	"viki-error-https-node": "Erreur d’élaboration du nœud : $1. Vous travaillez sous HTTPS ; vous pouvez seulement accéder à d’autres wikis à travers HTTPS.",
 	"viki-error-https-namespace": "Erreur de collecte de l’espace de noms de contenu pour le wiki : $1. Vous travaillez sous HTTPS ; vous ne pouvez accéder aux autres wikis que par HTTPS.",
-	"apihelp-getContentNamespaces-description": "Obtenir la liste des espaces de noms de contenu pour ce wiki."
+	"apihelp-getContentNamespaces-description": "Obtenir la liste des espaces de noms de contenu pour ce wiki.",
+	"apihelp-getContentNamespaces-summary": "Obtenir la liste des espaces de nom de contenu de ce wiki."
 }
