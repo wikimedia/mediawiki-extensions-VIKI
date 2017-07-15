@@ -40,7 +40,6 @@ if ( function_exists( 'wfLoadExtension' ) ) {
 	wfLoadExtension( 'VIKI' );
 	// Keep i18n globals so mergeMessageFileList.php doesn't break
 	$wgMessagesDirs['VIKI'] = __DIR__ . "/i18n";
-	$wgExtensionMessagesFiles['VIKI'] = __DIR__ . '/VIKI.i18n.php';
 	$wgExtensionMessagesFiles['VIKIMagic'] = __DIR__ . '/VIKI.i18n.magic.php';
 	wfWarn(
 		'Deprecated PHP entry point used for VIKI extension. Please use wfLoadExtension instead, ' .
