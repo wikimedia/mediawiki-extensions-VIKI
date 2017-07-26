@@ -22,19 +22,19 @@
  */
 
 /**
-* To activate the functionality of this extension include the following
-* in your LocalSettings.php file:
-* MW 1.25+:
-* wfLoadExtension("VIKI");
-* $wgRegisterInternalExternals = true;
-*
-* MW 1.22 - 1.24:
-* include_once("$IP/extensions/VIKI/VIKI.php");
-* $wgRegisterInternalExternals = true;
-*
-* If $wgRegisterInternalExternals was not already true, you must run
-* refreshLinks.php after setting this flag.
-*/
+ * To activate the functionality of this extension include the following
+ * in your LocalSettings.php file:
+ * MW 1.25+:
+ * wfLoadExtension( "VIKI" );
+ * $wgRegisterInternalExternals = true;
+ *
+ * MW 1.23 and 1.24:
+ * include_once "$IP/extensions/VIKI/VIKI.php";
+ * $wgRegisterInternalExternals = true;
+ *
+ * If $wgRegisterInternalExternals was not already true, you must run
+ * refreshLinks.php after setting this flag.
+ */
 
 if ( function_exists( 'wfLoadExtension' ) ) {
 	wfLoadExtension( 'VIKI' );
@@ -48,14 +48,14 @@ if ( function_exists( 'wfLoadExtension' ) ) {
 	return;
 }
 
-define( 'VIKIJS_VERSION', '1.5.2' );
+define( 'VIKIJS_VERSION', '1.6.0' );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	die( '<b>Error:</b> This file is part of a MediaWiki extension and cannot be run standalone.' );
 }
 
-if ( version_compare( $wgVersion, '1.22', 'lt' ) ) {
-	die( '<b>Error:</b> This version of VIKI is only compatible with MediaWiki 1.22 or above.' );
+if ( version_compare( $wgVersion, '1.23', 'lt' ) ) {
+	die( '<b>Error:</b> This version of VIKI is only compatible with MediaWiki 1.23 or above.' );
 }
 
 if ( !defined( 'SMW_VERSION' ) ) {
@@ -71,11 +71,14 @@ if ( version_compare( SMW_VERSION, '1.9', '<' ) ) {
 $wgExtensionCredits['parserhook'][] = array (
 	'name' => 'VIKI',
 	'version' => VIKIJS_VERSION,
-	'author' => array('[https://www.mediawiki.org/wiki/User:Jji Jason Ji]',
-						'[https://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]'),
+	'author' => array(
+		'[https://www.mediawiki.org/wiki/User:Jji Jason Ji]',
+		'[https://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]'
+	),
 	'descriptionmsg' => 'viki-desc',
 	'path' => __FILE__,
-	'url' => 'https://www.mediawiki.org/wiki/Extension:VIKI'
+	'url' => 'https://www.mediawiki.org/wiki/Extension:VIKI',
+	'license-name' => 'MIT'
 );
 
 $wgExtensionMessagesFiles['VIKIMagic'] =

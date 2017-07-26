@@ -1,13 +1,17 @@
 {
 	"name": "VIKI",
-	"version": "1.5.2",
+	"version": "1.6.0",
 	"author": [
 		"[https://www.mediawiki.org/wiki/User:Jji Jason Ji]",
 		"[https://www.mediawiki.org/wiki/User:Cindy.cicalese Cindy Cicalese]"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:VIKI",
+	"license-name": "MIT",
 	"descriptionmsg": "viki-desc",
 	"type": "parserhook",
+	"requires": {
+		"MediaWiki": ">= 1.23.0"
+	},
 	"APIModules": {
 		"getContentNamespaces": "ApiGetContentNamespaces"
 	},
