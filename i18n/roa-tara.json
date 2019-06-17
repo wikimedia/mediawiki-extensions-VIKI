@@ -4,5 +4,13 @@
 			"Joetaras"
 		]
 	},
-	"viki-error-title": "Errore:"
+	"viki-desc": "Disegne 'u grafeche de 'na rezze de collegaminde 'mbrà le pàggene d'a uicchi o le pàggene web",
+	"viki-error-title": "Errore:",
+	"viki-error-missing-pageTitle": "Jè obbligatorie da ninde ninde 'nu titole d'a pàgene.",
+	"viki-timeout-content-namespace": "Tiembe scadute pe l'analise d'u namespace de condenute pa uicchi: $1. 'U namespace prengepàle jè quidde predefinite.",
+	"viki-error-content-namespace": "Errore duranne l'analise d'u namespace de condenute pa uicchi: $1. 'U namespace prengepàle jè quidde predefinite.",
+	"viki-error-visit-node": "Errore mendre ste pruvamme a 'ndrucà 'u node: $1.",
+	"viki-error-external-links": "Errore mendre ste analizzamme 'u collegamende de fore pa pàgene: $1.",
+	"viki-error-intrawiki-out": "Errore mendre ste analizzamme le collegaminde ca iessene a 'u 'nderne d'a uicchi pa pàgene: $1.",
+	"viki-error-intrawiki-in": "Errore mendre ste analizzamme le collegaminde de rrete a 'u 'nderne d'a uicchi pa pàgene: $1."
 }
