@@ -34,7 +34,7 @@
 class VikiJS {
 
 	private static $pqnum = 0;
-	private static $modules = array( "ext.VIKI", "jquery.ui.slider", "jquery.ui.progressbar" );
+	private static $modules = array( "ext.VIKI", "jquery.ui" );
 	private static $functionHooks = array();
 	private static $functionHookParams = array();
 
