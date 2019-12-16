@@ -3,7 +3,8 @@
 		"authors": [
 			"Grind24",
 			"Wladek92",
-			"Gomoko"
+			"Gomoko",
+			"Thibaut120094"
 		]
 	},
 	"viki-desc": "Dessine un réseau graphique des liens entre les pages du wiki ou des pages web",
@@ -15,8 +16,8 @@
 	"viki-error-external-links": "Erreur d'accès aux liens externes de la page: $1.",
 	"viki-error-intrawiki-out": "Erreur lors de l'accès aux liens sortants intrawiki de la page: $1.",
 	"viki-error-intrawiki-in": "Erreur lors de l'accès aux liens arrière intrawiki de la page: $1.",
-	"viki-error-https-node": "Erreur d’élaboration du nœud : $1. Vous travaillez sous HTTPS ; vous pouvez seulement accéder à d’autres wikis à travers HTTPS.",
-	"viki-error-https-namespace": "Erreur de collecte de l’espace de noms de contenu pour le wiki : $1. Vous travaillez sous HTTPS ; vous ne pouvez accéder aux autres wikis que par HTTPS.",
+	"viki-error-https-node": "Erreur d’élaboration du nœud : $1. Vous travaillez sous HTTPS ; vous pouvez seulement accéder à d’autres wikis à travers HTTPS.",
+	"viki-error-https-namespace": "Erreur de collecte de l’espace de noms de contenu pour le wiki : $1. Vous travaillez sous HTTPS ; vous ne pouvez accéder aux autres wikis que par HTTPS.",
 	"apihelp-getContentNamespaces-description": "Obtenir la liste des espaces de noms de contenu pour ce wiki.",
 	"apihelp-getContentNamespaces-summary": "Obtenir la liste des espaces de noms de contenu de ce wiki."
 }
