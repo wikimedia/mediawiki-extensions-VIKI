@@ -1,9 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
-			"Ата",
 			"Base",
-			"Piramidion"
+			"Piramidion",
+			"Ата"
 		]
 	},
 	"viki-desc": "Малює графік мережі посилань між вікі- або веб-сторінками",

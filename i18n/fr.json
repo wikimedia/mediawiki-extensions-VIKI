@@ -1,10 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Grind24",
-			"Wladek92",
 			"Gomoko",
-			"Thibaut120094"
+			"Grind24",
+			"Thibaut120094",
+			"Wladek92"
 		]
 	},
 	"viki-desc": "Dessine un réseau graphique des liens entre les pages du wiki ou des pages web",
