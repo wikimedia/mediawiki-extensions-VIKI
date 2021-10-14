@@ -21,12 +21,15 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ApiGetContentNamespaces extends ApiBase {
 	public function __construct( $main, $action ) {
 		parent::__construct( $main, $action );
 	}
 	public function execute() {
-		$this->getResult()->addValue( null, $this->getModuleName(), MWNamespace::getContentNamespaces() );
+		$namespaceInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
+		$this->getResult()->addValue( null, $this->getModuleName(), $namespaceInfo->getContentNamespaces() );
 
 		return true;
 	}
