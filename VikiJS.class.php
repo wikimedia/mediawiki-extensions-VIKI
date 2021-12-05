@@ -25,7 +25,7 @@
 * To activate the functionality of this extension include the following
 * in your LocalSettings.php file:
 * $wgRegisterInternalExternals = true;
-* include_once("$IP/extensions/VIKI/VIKI.php");
+* wfLoadExtension( 'VIKI' );
 *
 * If $wgRegisterInternalExternals was not already true, you must run
 * refreshLinks.php after setting this flag.
