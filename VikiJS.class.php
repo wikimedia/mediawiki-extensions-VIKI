@@ -81,7 +81,7 @@ class VikiJS {
 		$vikiJS = new VikiJS;
 		$output = $vikiJS->display( $parser, $pageTitles, $width, $height, $showSecondOrderLinks );
 		$parser->getOutput()->updateCacheExpiry( 0 );
-		return array( $parser->insertStripItem( $output, $parser->mStripState ),
+		return array( $parser->insertStripItem( $output, $parser->getStripState() ),
 			'noparse' => false );
 	}
 
