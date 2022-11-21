@@ -1,0 +1,20 @@
+{
+	"@metadata": {
+		"authors": [
+			"McDutchie"
+		]
+	},
+	"viki-desc": "Designa un rete graphic de ligamines inter paginas wiki o paginas web",
+	"viki-error-title": "Error:",
+	"viki-error-missing-pageTitle": "Tu debe fornir al minus un titulo de pagina.",
+	"viki-timeout-content-namespace": "Tempore limite excedite durante le obtention del spatio de nomines de contento pro le wiki: $1. Le systema recurre al spatio de nomines principal.",
+	"viki-error-content-namespace": "Un error ha occurrite durante le obtention del spatio de nomines de contento pro le wiki: $1. Le systema recurre al spatio de nomines principal.",
+	"viki-error-visit-node": "Error durante le tentativa de visitar le nodo: $1.",
+	"viki-error-external-links": "Error durante le obtention del ligamines externe pro le pagina: $1.",
+	"viki-error-intrawiki-out": "Error durante le obtention del ligamines sortiente intra-wiki pro le pagina: $1.",
+	"viki-error-intrawiki-in": "Error durante le obtention del retro-ligamines intra-wiki pro le pagina: $1.",
+	"viki-error-https-node": "Error elaborante le nodo: $1. Tu travalia a transverso HTTPS; tu pote solmente acceder a altere wikis a transverso HTTPS.",
+	"viki-error-https-namespace": "Error obtenente le spatio de nomines de contento pro le wiki: $1. Tu travalia a transverso HTTPS; tu pote solmente acceder a altere wikis a transverso HTTPS.",
+	"apihelp-getContentNamespaces-description": "Obtener le lista de spatios de nomines de contento pro iste wiki.",
+	"apihelp-getContentNamespaces-summary": "Obtener le lista de spatios de nomines de contento pro iste wiki."
+}
