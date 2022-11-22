@@ -5,13 +5,14 @@
 			"Grind24",
 			"Thibaut120094",
 			"Wladek92",
-			"Verdy p"
+			"Verdy p",
+			"McDutchie"
 		]
 	},
 	"viki-desc": "Dessine un réseau graphique des liens entre les pages du wiki ou des pages web",
 	"viki-error-title": "Erreur :",
 	"viki-error-missing-pageTitle": "Vous devez fournir au moins un titre de page.",
-	"viki-timeout-content-namespace": "Délai d'attente pour l'accès au contenu de l'espace de noms de wiki: $1. La valeur par défaut de l'espace de noms principal.",
+	"viki-timeout-content-namespace": "Délai d'attente lors de l'accès à l'espace de noms du contenu du wiki : $1. L'espace de noms principal sera utilisé par défaut.",
 	"viki-error-content-namespace": "Erreur à la récupération de l’espace de noms du contenu pour le wiki : $1. Espace de noms principal pris par défaut.",
 	"viki-error-visit-node": "Erreur lors de la tentative de visite du nœud : $1.",
 	"viki-error-external-links": "Erreur d'accès aux liens externes de la page: $1.",
