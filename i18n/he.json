@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Guycn2"
+			"Guycn2",
+			"Amire80"
 		]
 	},
+	"viki-error-title": "שגיאה:",
 	"apihelp-getContentNamespaces-description": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה."
 }
