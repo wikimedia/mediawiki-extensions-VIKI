@@ -4,5 +4,17 @@
 			"Eleassar"
 		]
 	},
-	"viki-error-title": "Napaka:"
+	"viki-desc": "Nariše mrežni graf povezav med vikistranmi ali spletnimi stranmi",
+	"viki-error-title": "Napaka:",
+	"viki-error-missing-pageTitle": "Navesti morate vsaj en naslov strani.",
+	"viki-timeout-content-namespace": "Časovna omejitev za pridobivanje imenskega prostora vsebine za viki je pretekla: $1. Privzeto bo uporabljen glavni imenski prostor.",
+	"viki-error-content-namespace": "Napaka pri pridobivanju imenskega prostora vsebine za viki: $1 . Privzeto bo uporabljen glavni imenski prostor.",
+	"viki-error-visit-node": "Napaka pri poskusu obiska vozlišča: $1.",
+	"viki-error-external-links": "Napaka pri pridobivanju zunanjih povezav za stran: $1.",
+	"viki-error-intrawiki-out": "Napaka pri pridobivanju odhodnih intraviki povezav za stran: $1.",
+	"viki-error-intrawiki-in": "Napaka pri pridobivanju povratnih intraviki povezav za stran: $1.",
+	"viki-error-https-node": "Napaka pri pripravi vozlišča: $1. Uporabljate HTTPS; do drugih vikijev lahko dostopate samo prek HTTPS.",
+	"viki-error-https-namespace": "Napaka pri pridobivanju imenskega prostora vsebine za viki: $1. Uporabljate HTTPS; do drugih vikijev lahko dostopate samo prek HTTPS.",
+	"apihelp-getContentNamespaces-description": "Pridobi seznam imenskih prostorov vsebine za ta viki.",
+	"apihelp-getContentNamespaces-summary": "Pridobi seznam imenskih prostorov vsebine za ta viki."
 }
