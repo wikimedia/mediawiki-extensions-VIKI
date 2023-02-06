@@ -5,7 +5,17 @@
 			"Guycn2"
 		]
 	},
+	"viki-desc": "ציור גרף רשת של קישרים בין דפי ויקי או דפי וב",
 	"viki-error-title": "שגיאה:",
+	"viki-error-missing-pageTitle": "חובה לספק לפחות כותרת דף אחת.",
 	"viki-timeout-content-namespace": "זמן קצוב עבור אחזור מרחב שמות של תוכן עבור ויקי: $1. ברירת מחדל למרחב השמות הראשי.",
-	"apihelp-getContentNamespaces-description": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה."
+	"viki-error-content-namespace": "שגיאה באחזור מרחב שמות של תוכן עבור ויקי: $1. ברירת מחדל תהיה מרחב השמות הראשי.",
+	"viki-error-visit-node": "שגיאה בעת ניסיון לבקר בצומת: $1 .",
+	"viki-error-external-links": "שגיאה באחזור קישורים חיצוניים לדף: $1 .",
+	"viki-error-intrawiki-out": "שגיאה באחזור קישורים פנימיים יוצאים עבור דף: $1.",
+	"viki-error-intrawiki-in": "שגיאה באחזור קישורים פנימיים נכנסים עבור הדף: $1.",
+	"viki-error-https-node": "שגיאה בעיבוד הצומת: $1. הפעלת את זה באמצעות HTTPS; אפשר לגשת לאתרי ויקי אחרים רק באמצעות HTTPS.",
+	"viki-error-https-namespace": "שגיאה באחזור מרחב שמות של תוכן עבור ויקי: $1. הפעלת את זה באמצעות HTTPS; אפשר לגשת לאתרי ויקי אחרים רק באמצעות HTTPS.",
+	"apihelp-getContentNamespaces-description": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה.",
+	"apihelp-getContentNamespaces-summary": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה."
 }
