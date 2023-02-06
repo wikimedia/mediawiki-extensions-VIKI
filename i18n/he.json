@@ -6,5 +6,6 @@
 		]
 	},
 	"viki-error-title": "שגיאה:",
+	"viki-timeout-content-namespace": "זמן קצוב עבור אחזור מרחב שמות של תוכן עבור ויקי: $1. ברירת מחדל למרחב השמות הראשי.",
 	"apihelp-getContentNamespaces-description": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה."
 }
