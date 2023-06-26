@@ -15,6 +15,5 @@
 	"viki-error-intrawiki-in": "Errore mendre ste analizzamme le collegaminde de rrete a 'u 'nderne d'a uicchi pa pàgene: $1.",
 	"viki-error-https-node": "Errore de elabborazione d'u node: $1. Tu ste ause HTTPS; jè possibbele trasè a le otre uicchi sulamende cu HTTPS.",
 	"viki-error-https-namespace": "Errore de recupere d'u namespace d'u condenute pa uicchi: $1. Tu ste ause HTTPS; jè possibbele trasè a le otre uicchi sulamende cu HTTPS.",
-	"apihelp-getContentNamespaces-description": "Pigghie l'elenghe de le namaspace de condenute pe sta uicchi.",
 	"apihelp-getContentNamespaces-summary": "Pigghie l'elenghe de le namaspace de condenute pe sta uicchi."
 }

@@ -16,6 +16,5 @@
 	"viki-error-intrawiki-in": "在索取用於頁面的內部 wiki 反向連結時出錯：$1。",
 	"viki-error-https-node": "闡述節點錯誤：$1。您正透過 HTTPS 運作，您僅能以 HTTPS 來存取其它 wiki。",
 	"viki-error-https-namespace": "索取用於此 wiki 的內容名稱空間錯誤：$1。您正透過 HTTPS 運作，您僅能以 HTTPS 來存取其它 wiki。",
-	"apihelp-getContentNamespaces-description": "取得用於此 wiki 的內容名稱空間清單。",
 	"apihelp-getContentNamespaces-summary": "取得用於此 wiki 的內容名稱空間清單。"
 }

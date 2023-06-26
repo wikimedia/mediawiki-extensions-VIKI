@@ -16,6 +16,5 @@
 	"viki-error-intrawiki-in": "Erro procurando as ligazóns de volta interwiki para a páxina: $1.",
 	"viki-error-https-node": "Erro elaborando nodo: $1. Vostede está traballando sobre HTTPS; vostede só pode acceder a outras wikis a través de HTTPS.",
 	"viki-error-https-namespace": "Erro obtendo o espazo de nomes de contido para a wiki: $1. Vostede está traballando sobre HTTPS, só pode acceder a outras wikis a través de HTTPS.",
-	"apihelp-getContentNamespaces-description": "Obter a lista dos espazos de nomes deste wiki.",
 	"apihelp-getContentNamespaces-summary": "Obter a lista de espazos de nome de contido desta wiki."
 }

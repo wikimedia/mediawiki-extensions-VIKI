@@ -16,6 +16,5 @@
 	"viki-error-intrawiki-in": "שגיאה באחזור קישורים פנימיים נכנסים עבור הדף: $1.",
 	"viki-error-https-node": "שגיאה בעיבוד הצומת: $1. הפעלת את זה באמצעות HTTPS; אפשר לגשת לאתרי ויקי אחרים רק באמצעות HTTPS.",
 	"viki-error-https-namespace": "שגיאה באחזור מרחב שמות של תוכן עבור ויקי: $1. הפעלת את זה באמצעות HTTPS; אפשר לגשת לאתרי ויקי אחרים רק באמצעות HTTPS.",
-	"apihelp-getContentNamespaces-description": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה.",
 	"apihelp-getContentNamespaces-summary": "לקבל רשימה של מרחבי התוכן באתר הוויקי הזה."
 }

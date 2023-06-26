@@ -15,6 +15,5 @@
 	"viki-error-intrawiki-in": "Error durante le obtention del retro-ligamines intra-wiki pro le pagina: $1.",
 	"viki-error-https-node": "Error elaborante le nodo: $1. Tu travalia a transverso HTTPS; tu pote solmente acceder a altere wikis a transverso HTTPS.",
 	"viki-error-https-namespace": "Error obtenente le spatio de nomines de contento pro le wiki: $1. Tu travalia a transverso HTTPS; tu pote solmente acceder a altere wikis a transverso HTTPS.",
-	"apihelp-getContentNamespaces-description": "Obtener le lista de spatios de nomines de contento pro iste wiki.",
 	"apihelp-getContentNamespaces-summary": "Obtener le lista de spatios de nomines de contento pro iste wiki."
 }

@@ -16,6 +16,5 @@
 	"viki-error-intrawiki-in": "Sayfa için intrawiki geri bağlantıları alınırken hata oluştu: $1.",
 	"viki-error-https-node": "Düğüm hazırlama hatası: $1. HTTPS üzerinden çalışıyorsunuz; HTTPS üzerinden yalnızca diğer wikilere erişebilirsiniz.",
 	"viki-error-https-namespace": "Wiki için içerik ad alanı getirilirken hata oluştu: $1. HTTPS üzerinden çalışıyorsunuz; HTTPS üzerinden yalnızca diğer wikilere erişebilirsiniz.",
-	"apihelp-getContentNamespaces-description": "Bu viki için içerik ad alanlarının listesini alın.",
 	"apihelp-getContentNamespaces-summary": "Bu viki için içerik ad alanlarının listesini alın."
 }

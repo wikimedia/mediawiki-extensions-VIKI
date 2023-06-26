@@ -15,6 +15,5 @@
 	"viki-error-intrawiki-in": "Feil under henting av inngående interwikilenker for siden: $1.",
 	"viki-error-https-node": "Feil under utbrodering av node: $1. Du kjører over HTTPS; du kan bare få tilgang til andre wikier over HTTPS.",
 	"viki-error-https-namespace": "Feil under henting av innholdsnavnerom for wikien: $1. Du kjører over HTTPS; du kan bare få tilgang til andre wikier over HTTPS.",
-	"apihelp-getContentNamespaces-description": "Hent listen over innholdsnavnerom for denne wikien.",
 	"apihelp-getContentNamespaces-summary": "Hent listen over innholdsnavnerom for denne wikien."
 }

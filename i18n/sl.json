@@ -15,6 +15,5 @@
 	"viki-error-intrawiki-in": "Napaka pri pridobivanju povratnih intraviki povezav za stran: $1.",
 	"viki-error-https-node": "Napaka pri pripravi vozlišča: $1. Uporabljate HTTPS; do drugih vikijev lahko dostopate samo prek HTTPS.",
 	"viki-error-https-namespace": "Napaka pri pridobivanju imenskega prostora vsebine za viki: $1. Uporabljate HTTPS; do drugih vikijev lahko dostopate samo prek HTTPS.",
-	"apihelp-getContentNamespaces-description": "Pridobi seznam imenskih prostorov vsebine za ta viki.",
 	"apihelp-getContentNamespaces-summary": "Pridobi seznam imenskih prostorov vsebine za ta viki."
 }
