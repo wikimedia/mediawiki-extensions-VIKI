@@ -1,8 +1,20 @@
 {
 	"@metadata": {
 		"authors": [
-			"Sjoerddebruin"
+			"Sjoerddebruin",
+			"McDutchie"
 		]
 	},
-	"viki-error-title": "Fout:"
+	"viki-desc": "Tekent een netwerkgrafiek van koppelingen tussen wikipagina’s of webpagina’s",
+	"viki-error-title": "Fout:",
+	"viki-error-missing-pageTitle": "U moet ten minste één paginatitel opgeven.",
+	"viki-timeout-content-namespace": "Time-out bij het ophalen van de voor inhoud gebruikte naamruimte van de wiki: $1. Bij gebrek hieraan wordt nu uitgegaan van de hoofdnaamruimte.",
+	"viki-error-content-namespace": "Fout bij het ophalen van de voor inhoud gebruikte naamruimte van de wiki: $1. Bij gebrek hieraan wordt nu uitgegaan van de hoofdnaamruimte.",
+	"viki-error-visit-node": "Fout bij poging knooppunt te bezoeken: $1.",
+	"viki-error-external-links": "Fout bij opvragen van externe koppelingen voor de pagina: $1.",
+	"viki-error-intrawiki-out": "Fout bij het opvragen van uitgaande intrawiki-koppelingen voor de pagina: $1.",
+	"viki-error-intrawiki-in": "Fout bij het opvragen van inkomende intrawiki-koppelingen voor de pagina: $1.",
+	"viki-error-https-node": "Fout bij het uitwerken van het knooppunt: $1. U maakt verbinding via HTTPS; u hebt dus alleen via HTTPS toegang tot andere wiki’s.",
+	"viki-error-https-namespace": "Fout bij opvragen inhoudsnaamruimte voor wiki: $1. U maakt verbinding via HTTPS; u hebt dus alleen via HTTPS toegang tot andere wiki’s.",
+	"apihelp-getContentNamespaces-summary": "De lijst met inhoudsnaamruimten voor deze wiki opvragen."
 }
