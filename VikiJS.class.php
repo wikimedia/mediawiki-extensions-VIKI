@@ -21,6 +21,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+use MediaWiki\Category\Category;
+use MediaWiki\Title\Title;
+
 /**
 * To activate the functionality of this extension include the following
 * in your LocalSettings.php file:
