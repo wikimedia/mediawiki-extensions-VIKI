@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Revi",
+			"Tensama0415",
 			"Ykhwong",
 			"아라"
 		]
@@ -9,5 +10,13 @@
 	"viki-desc": "위키 문서 또는 웹 문서에서 오는 링크 모음을 그래프로 표현합니다",
 	"viki-error-title": "오류:",
 	"viki-error-missing-pageTitle": "최소한 하나의 제목을 제공해야 합니다.",
+	"viki-timeout-content-namespace": "위키의 콘텐츠 이름공간을 가져오는 도중 타임아웃 발생: $1. 기본값인 일반 이름공간 사용.",
+	"viki-error-content-namespace": "위키의 콘텐츠 이름공간을 가져오는 도중 오류 발생: $1. 기본값인 일반 이름공간 사용.",
+	"viki-error-visit-node": "노드 방문 시도 도중 오류 발생: $1.",
+	"viki-error-external-links": "문서에 대한 외부 링크를 가져오는 도중 오류 발생: $1.",
+	"viki-error-intrawiki-out": "문서에 대한 내부 위키 나가는 링크 가져오는 도중 오류 발생: $1.",
+	"viki-error-intrawiki-in": "문서에 대한 내부 위키 백링크 가져오는 도중 오류 발생: $1.",
+	"viki-error-https-node": "노드 작성 도중 오류 발생: $1. HTTPS로 접속중이며, 다른 위키에는 HTTPS로만 접근 가능함.",
+	"viki-error-https-namespace": "위키의 콘텐츠 이름공간을 가져오는 도중 오류 발생: $1. HTTPS로 접속중이며, 다른 위키에는 HTTPS로만 접근 가능함.",
 	"apihelp-getContentNamespaces-summary": "이 위키의 콘텐츠 이름공간의 목록을 가져옵니다."
 }
