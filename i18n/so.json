@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"AhmedG612"
+		]
+	},
+	"viki-desc": "Waxay sawirtaa garaaf shabakad ah oo muujinaya xiriirrada u dhexeeya bogagga wiki-ga ama bogagga shabakadda",
+	"viki-error-title": "Khalad:",
+	"viki-error-missing-pageTitle": "Waa inaad bixisaa ugu yaraan hal cinwaan bog.",
+	"viki-timeout-content-namespace": "Waqtiga loo qoondeeyey soo-qaadista meel magaca nuxurka ee wiki-ga: $1 ayaa dhammaaday. Waxaa loo beddelay meel magaca ugu weyn si caadi ah.",
+	"viki-error-content-namespace": "Khalad ayaa ka dhacay soo-qaadista meel magaca nuxurka ee wiki-ga: $1. Waxaa loo beddelay meel magaca ugu weyn si caadi ah.",
+	"viki-error-visit-node": "Khalad ayaa dhacay markii la isku dayayey in la booqdo node-ka: $1.",
+	"viki-error-external-links": "Khalad ayaa ka dhacay soo-qaadista xiriirrada dibadda ee bogga: $1.",
+	"viki-error-intrawiki-out": "Khalad ayaa ka dhacay soo qaadista xiriirrada ka baxa gudaha wiki-ga ee bogga: $1.",
+	"viki-error-intrawiki-in": "Khalad ayaa ka dhacay soo qaadista xiriirrada gudaha wiki-ga ee ku soo laabta bogga: $1.",
+	"viki-error-https-node": "Khalad ayaa ka dhacay faahfaahin ka bixinta node-ka: $1. Waxaad isticmaalaysaa HTTPS; waxaad wiki-yo kale ku geli kartaa oo keliya HTTPS.",
+	"viki-error-https-namespace": "Khalad ayaa ka dhacay soo qaadista meel magaca nuxurka ee wiki-ga: $1. Waxaad isticmaalaysaa HTTPS; waxaad wiki-yo kale ku geli kartaa oo keliya HTTPS.",
+	"apihelp-getContentNamespaces-summary": "Hel liiska meelaha magaca nuxurka ee wiki-gan."
+}
