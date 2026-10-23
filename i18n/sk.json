@@ -1,0 +1,19 @@
+{
+	"@metadata": {
+		"authors": [
+			"Wizzard"
+		]
+	},
+	"viki-desc": "Kreslí sieťový graf odkazov medzi stránkami wiki alebo webovými stránkami",
+	"viki-error-title": "Chyba:",
+	"viki-error-missing-pageTitle": "Musíte zadať aspoň jeden názov stránky.",
+	"viki-timeout-content-namespace": "Vypršal časový limit načítania obsahového menného priestoru pre wiki: $1. Použije sa hlavný menný priestor.",
+	"viki-error-content-namespace": "Chyba pri načítaní obsahového menného priestoru pre wiki: $1. Použije sa hlavný menný priestor.",
+	"viki-error-visit-node": "Chyba pri pokuse navštíviť uzol: $1.",
+	"viki-error-external-links": "Chyba pri načítaní externých odkazov stránky: $1.",
+	"viki-error-intrawiki-out": "Chyba pri načítaní odchádzajúcich odkazov v rámci wiki zo stránky: $1.",
+	"viki-error-intrawiki-in": "Chyba pri načítaní spätných odkazov v rámci wiki na stránku: $1.",
+	"viki-error-https-node": "Chyba pri spracovaní uzla: $1. Bežíte cez HTTPS; k iným wiki sa môžete pripojiť iba cez HTTPS.",
+	"viki-error-https-namespace": "Chyba pri načítaní obsahového menného priestoru pre wiki: $1. Bežíte cez HTTPS; k iným wiki sa môžete pripojiť iba cez HTTPS.",
+	"apihelp-getContentNamespaces-summary": "Získať zoznam obsahových menných priestorov tejto wiki."
+}
